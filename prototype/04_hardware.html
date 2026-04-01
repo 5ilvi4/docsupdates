@@ -384,13 +384,13 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
 
     <!-- OPTIONAL MONITOR -->
     <div class="sys-optional">
-      <span style="font-size:11px;color:var(--c2);font-weight:700">Optional output:</span>
+      <span style="font-size:11px;color:var(--c2);font-weight:700">Optional mirror to TV:</span>
       <div class="opt-dash"></div>
-      <span style="font-size:11px;color:var(--c2)">iPad</span>
-      <div class="opt-dash" style="width:40px"></div>
-      <div class="opt-node">🔌 USB-C Dongle</div>
-      <div class="opt-dash" style="width:40px"></div>
-      <div class="opt-node">🖥 Monitor (OT / classroom)</div>
+      <div class="opt-node">🔌 USB-C Dongle → HDMI <span style="font-size:9px;font-weight:400;margin-left:4px">~0ms · clinic</span></div>
+      <div class="opt-dash" style="width:24px"></div>
+      <span style="font-size:11px;color:var(--c2)">or</span>
+      <div class="opt-dash" style="width:24px"></div>
+      <div class="opt-node">� AirPlay → Smart TV <span style="font-size:9px;font-weight:400;margin-left:4px">~100ms · home · $0</span></div>
     </div>
   </div>
 
@@ -420,14 +420,14 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
       <thead><tr><th>#</th><th>Component</th><th>Function</th><th>Unit Cost</th><th>Qty</th><th>Total</th><th>Status</th></tr></thead>
       <tbody>
         <tr><td>1</td><td>M5StickC PLUS2 w/ Watch Accessories</td><td>ESP32 + MPU6886 IMU + TFT screen + strap</td><td style="color:var(--g0);font-weight:700">$32.90</td><td>1</td><td style="color:var(--g0);font-weight:700">$32.90</td><td><span class="badge bg">Amazon Prime</span></td></tr>
-        <tr><td>2</td><td>Anker 321 Power Bank 5200mAh</td><td>USB-C passthrough · unlimited session time</td><td style="color:var(--g0);font-weight:700">$17.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$17.00</td><td><span class="badge bg">Amazon Prime</span></td></tr>
+        <tr><td>2</td><td>Power Bank 5200mAh (USB-C)</td><td>USB-C passthrough · unlimited session time</td><td style="color:var(--g0);font-weight:700">$0</td><td>1</td><td style="color:var(--g0);font-weight:700">$0</td><td><span class="badge bg">✅ Already have</span></td></tr>
         <tr><td>3</td><td>iPad (any, iOS 16+)</td><td>MotionMind app · front camera · MediaPipe</td><td style="color:var(--c2);font-weight:700">—</td><td>1</td><td style="color:var(--c2);font-weight:700">existing</td><td><span class="badge bb">Existing device</span></td></tr>
         <tr><td>4</td><td>USB-C Dock / Stand</td><td>Hold iPad facing child during session</td><td style="color:var(--g0);font-weight:700">$12.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$12.00</td><td><span class="badge bg">Off-shelf</span></td></tr>
-        <tr><td>5</td><td>USB-C Dongle (HDMI + PD)</td><td>Mirror iPad → wall monitor (OT clinic)</td><td style="color:var(--g0);font-weight:700">$25.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$25.00</td><td><span class="badge bo">Optional</span></td></tr>
+        <tr><td>5</td><td>USB-C Dongle (HDMI + PD)</td><td>Mirror iPad → monitor, wired (OT clinic)</td><td style="color:var(--g0);font-weight:700">$25.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$25.00</td><td><span class="badge bo">Optional — wired</span></td></tr>
       </tbody>
       <tfoot>
-        <tr><td colspan="5" style="font-weight:700">Core prototype total (band + power bank + dock)</td><td style="color:var(--g0);font-size:17px;font-weight:900">~$62</td><td></td></tr>
-        <tr><td colspan="5" style="color:var(--c2)">With optional wall monitor dongle</td><td style="font-weight:900;font-size:16px">~$87</td><td style="font-size:11px;color:var(--c2)">all-in</td></tr>
+        <tr><td colspan="5" style="font-weight:700">Core prototype total (band + dock)</td><td style="color:var(--g0);font-size:17px;font-weight:900">~$45</td><td style="font-size:11px;color:var(--c2)">power bank already owned</td></tr>
+        <tr><td colspan="5" style="color:var(--c2)">With optional wired monitor dongle</td><td style="font-weight:900;font-size:16px">~$70</td><td style="font-size:11px;color:var(--c2)">all-in</td></tr>
         <tr><td colspan="5" style="color:var(--c2)">ASIN reference (band)</td><td style="font-weight:700;color:var(--c2);font-size:11px">B0DFK42GF6</td><td style="font-size:11px;color:var(--c2)">4.5★ / 48 reviews</td></tr>
       </tfoot>
     </table>
@@ -449,6 +449,50 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
         <tr><td>⚠️ Power-on note</td><td>Must set HOLD (G4) = HIGH in setup()</td><td>PLUS2 removed PMIC AXP192 — critical for firmware</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="sig-table-wrap" style="margin-top:24px">
+    <div class="sig-table-head">📺 Monitor Mirroring Options — iPad to TV / Screen</div>
+    <table>
+      <thead><tr><th>Method</th><th>How</th><th>Latency</th><th>Cost</th><th>Best for</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>🔌 USB-C Dongle → HDMI</td>
+          <td>iPad USB-C → dongle → HDMI cable → any TV/monitor</td>
+          <td><span class="badge bg">~0ms</span></td>
+          <td style="font-weight:700;color:var(--g0)">~$25 dongle</td>
+          <td>OT clinic · reliable · no WiFi needed</td>
+          <td><span class="badge bg">Recommended</span></td>
+        </tr>
+        <tr>
+          <td>📡 AirPlay → Smart TV</td>
+          <td>Control Center → AirPlay → select TV (same WiFi)</td>
+          <td><span class="badge bb">~100–200ms</span></td>
+          <td style="font-weight:700;color:var(--g0)">$0</td>
+          <td>Home use · Samsung / LG / Sony 2019+</td>
+          <td><span class="badge bg">Zero cost</span></td>
+        </tr>
+        <tr>
+          <td>📡 AirPlay → Apple TV</td>
+          <td>Control Center → AirPlay → Apple TV (same WiFi)</td>
+          <td><span class="badge bb">~100–200ms</span></td>
+          <td style="font-weight:700;color:var(--c2)">$129 Apple TV</td>
+          <td>Home use · cleanest wireless experience</td>
+          <td><span class="badge bo">If already owned</span></td>
+        </tr>
+        <tr>
+          <td>🔌 Lightning Adapter → HDMI</td>
+          <td>Lightning → Apple AV adapter → HDMI (older iPads)</td>
+          <td><span class="badge bg">~0ms</span></td>
+          <td style="font-weight:700;color:var(--c2)">$15–49</td>
+          <td>Pre-2018 iPad with Lightning port only</td>
+          <td><span class="badge bo">Legacy fallback</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:10px 16px;font-size:10.5px;color:var(--c2);border-top:1px solid #F5F5FA">
+      💡 <strong>For first customer test:</strong> AirPlay to their Smart TV = $0, no cables to bring. For clinic: USB-C dongle = zero WiFi dependency, zero latency, iPad charges simultaneously.
+    </div>
   </div>
 
   <p class="disc">v1 prototype build for customer testing sessions (April 2026). M5StickC PLUS2 selected over LilyGO T-Watch S3 (no gyro, 1★ reviews) and Waveshare AMOLED Watch (battery safety warning, no Arduino board manager support). Power bank enables 2–4hr customer testing sessions. General wellness device · COPPA 2025 compliant · FDA General Wellness Guidance Jan 6, 2026.</p>
