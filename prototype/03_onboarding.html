@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MotionMind — Setup & Onboarding</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green:    #00735C;
+    --teal:     #00A88A;
+    --lime:     #6CC24A;
+    --charcoal: #1A1A2E;
+    --dark:     #0D1F17;
+    --mid:      #4A4A6A;
+    --silver:   #D0D0E0;
+    --offwhite: #F5F5F7;
+    --white:    #FFFFFF;
+    --orange:   #E86A1A;
+    --gold:     #F0A500;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--offwhite);
+    color: var(--charcoal);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP NAV ── */
+  nav {
+    background: var(--charcoal);
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    flex-shrink: 0;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo  {
+    width: 30px; height: 30px; background: var(--green); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+  }
+  .nav-brand span { color: white; font-size: 16px; font-weight: 700; }
+  .nav-back {
+    color: var(--silver); font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: color 0.15s;
+  }
+  .nav-back:hover { color: white; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 4px;
+    background: #E0E0EC;
+    flex-shrink: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--teal));
+    transition: width 0.5s ease;
+  }
+
+  /* ── STEP INDICATOR ── */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 18px 0 0;
+    flex-shrink: 0;
+  }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    border: 2px solid #D0D0E0;
+    color: var(--silver);
+    background: white;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .step-dot.done  { background: var(--green); border-color: var(--green); color: white; }
+  .step-dot.active{ background: var(--charcoal); border-color: var(--charcoal); color: white; }
+  .step-line {
+    width: 60px; height: 2px;
+    background: #D0D0E0;
+    transition: background 0.3s;
+  }
+  .step-line.done { background: var(--green); }
+  .step-labels {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 6px 0 18px;
+  }
+  .step-lbl {
+    font-size: 10px; color: var(--silver);
+    width: 94px; text-align: center;
+    transition: color 0.3s;
+  }
+  .step-lbl.active { color: var(--charcoal); font-weight: 600; }
+  .step-lbl.done   { color: var(--green); }
+  .step-spacer { width: 60px; }
+
+  /* ── CARD WRAPPER ── */
+  .card-wrap {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 20px 32px;
+  }
+  .onboard-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #EBEBF5;
+    width: 100%;
+    max-width: 680px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  /* ── STEP PANELS ── */
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  /* Step header */
+  .step-header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid #F0F0F8;
+  }
+  .step-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 99px;
+    margin-bottom: 10px;
+  }
+  .step-header h2 {
+    font-size: 22px; font-weight: 800; color: var(--charcoal);
+    line-height: 1.2;
+  }
+  .step-header p {
+    font-size: 13px; color: var(--mid);
+    margin-top: 6px; line-height: 1.5;
+  }
+
+  /* Step body */
+  .step-body { padding: 24px 32px; }
+
+  /* Step footer */
+  .step-footer {
+    padding: 16px 32px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid #F0F0F8;
+  }
+  .btn-primary {
+    background: var(--green); color: white;
+    border: none; border-radius: 10px;
+    padding: 12px 28px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--teal); }
+  .btn-primary:disabled { background: #C0C0D0; cursor: not-allowed; }
+  .btn-ghost {
+    background: none; color: var(--mid);
+    border: 1px solid #D0D0E0; border-radius: 10px;
+    padding: 12px 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+  /* ─────────────────────────────
+     STEP 1 — WELCOME
+  ───────────────────────────── */
+  .welcome-hero {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background: linear-gradient(135deg, var(--charcoal), #2A2A4A);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    color: white;
+  }
+  .band-illustration {
+    width: 80px; height: 80px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 8px 24px rgba(0,115,92,0.4);
+    position: relative;
+  }
+  .band-pulse {
+    position: absolute; inset: -6px;
+    border-radius: 26px;
+    border: 2px solid rgba(108,194,74,0.4);
+    animation: bandPulse 2s ease-out infinite;
+  }
+  @keyframes bandPulse {
+    0%   { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.25); opacity: 0; }
+  }
+  .welcome-hero h3 { font-size: 18px; font-weight: 800; }
+  .welcome-hero p  { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 5px; line-height: 1.5; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .feature-item {
+    border: 1px solid #EBEBF5;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .feature-icon { font-size: 22px; flex-shrink: 0; }
+  .feature-item h4 { font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .feature-item p  { font-size: 11px; color: var(--mid); margin-top: 2px; }
+
+  /* ─────────────────────────────
+     STEP 2 — ADD CHILD
+  ───────────────────────────── */
+  .form-row { margin-bottom: 18px; }
+  .form-label { font-size: 12px; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid #E0E0EE; border-radius: 9px;
+    font-size: 14px; color: var(--charcoal);
+    outline: none; transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .form-input:focus { border-color: var(--teal); }
+  .form-hint { font-size: 11px; color: var(--mid); margin-top: 4px; }
+  .age-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .avatar-picker {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;
+  }
+  .avatar-opt {
+    width: 48px; height: 48px; border-radius: 12px;
+    border: 2px solid #E0E0EE;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .avatar-opt:hover   { border-color: var(--teal); }
+  .avatar-opt.chosen  { border-color: var(--green); background: #EAF7F4; }
+
+  /* ─────────────────────────────
+     STEP 3 — BAND PAIRING
+  ───────────────────────────── */
+  .pairing-stage {
+    text-align: center;
+    padding: 16px 0;
+  }
+  .band-ring-wrap {
+    position: relative;
+    width: 140px; height: 140px;
+    margin: 0 auto 20px;
+  }
+  .band-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(0,168,138,0.2);
+    animation: ringExpand 2s ease-out infinite;
+  }
+  .band-ring:nth-child(2) { animation-delay: 0.6s; }
+  .band-ring:nth-child(3) { animation-delay: 1.2s; }
+  @keyframes ringExpand {
+    0%   { transform: scale(0.7); opacity: 0.8; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  .band-center {
+    position: absolute; inset: 30px;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 4px 20px rgba(0,115,92,0.4);
+  }
+  .pairing-status {
+    font-size: 14px; font-weight: 700; margin-bottom: 6px;
+  }
+  .pairing-sub { font-size: 12px; color: var(--mid); margin-bottom: 20px; }
+
+  .pairing-steps-list {
+    text-align: left;
+    background: var(--offwhite);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 0 auto;
+    max-width: 380px;
+  }
+  .ps-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #EAEAF4;
+    font-size: 13px;
+  }
+  .ps-row:last-child { border-bottom: none; }
+  .ps-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--offwhite); border: 2px solid #D0D0E0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--mid);
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .ps-num.done   { background: var(--green); border-color: var(--green); color: white; }
+  .ps-num.active { background: var(--charcoal); border-color: var(--charcoal); color: white; }
+  .ps-text { color: var(--charcoal); }
+  .ps-text.done   { color: var(--mid); text-decoration: line-through; }
+  .ps-text.active { font-weight: 600; }
+
+  /* Bluetooth scan animation */
+  .bt-scan {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #EAF7F4; border: 1px solid rgba(0,168,138,0.3);
+    border-radius: 99px; padding: 6px 14px;
+    font-size: 12px; color: var(--teal); font-weight: 600;
+    margin: 14px auto 0;
+  }
+  .bt-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--teal);
+    animation: btBlink 1s infinite;
+  }
+  @keyframes btBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* ─────────────────────────────
+     STEP 4 — CALIBRATION
+  ───────────────────────────── */
+  .calib-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .calib-task {
+    border: 1.5px solid #E8E8F4;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .calib-task:hover { border-color: var(--teal); box-shadow: 0 2px 12px rgba(0,168,138,0.1); }
+  .calib-task.done  { border-color: var(--green); background: #F0FAF6; }
+  .calib-task.active{ border-color: var(--teal); background: #EAF7F4; }
+  .calib-emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .calib-title { font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .calib-sub   { font-size: 11px; color: var(--mid); margin-top: 3px; }
+  .calib-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--green); color: white;
+    font-size: 11px; display: none;
+    align-items: center; justify-content: center;
+  }
+  .calib-task.done .calib-check { display: flex; }
+
+  .calib-bar-wrap {
+    background: var(--offwhite);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .calib-bar-label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; margin-bottom: 8px;
+  }
+  .calib-bar-label span { font-weight: 700; color: var(--charcoal); }
+  .calib-bar-label small { color: var(--mid); }
+  .calib-track {
+    height: 10px; background: #E0E0EC;
+    border-radius: 99px; overflow: hidden;
+  }
+  .calib-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--teal), var(--lime));
+    transition: width 0.5s ease;
+  }
+
+  /* ─────────────────────────────
+     STEP 5 — ALL SET
+  ───────────────────────────── */
+  .success-hero {
+    text-align: center;
+    padding: 10px 0 24px;
+  }
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--lime));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; margin: 0 auto 16px;
+    box-shadow: 0 6px 24px rgba(0,115,92,0.3);
+    animation: successPop 0.6s ease;
+  }
+  @keyframes successPop {
+    0%   { transform: scale(0); }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .success-hero h3 { font-size: 26px; font-weight: 800; color: var(--charcoal); }
+  .success-hero p  { font-size: 14px; color: var(--mid); margin-top: 6px; line-height: 1.5; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .summary-item {
+    background: var(--offwhite);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .summary-item .s-val { font-size: 24px; font-weight: 800; color: var(--green); }
+  .summary-item .s-lbl { font-size: 11px; color: var(--mid); margin-top: 3px; }
+
+  .next-steps {
+    background: var(--offwhite);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 8px;
+  }
+  .ns-title { font-size: 12px; font-weight: 700; color: var(--charcoal); margin-bottom: 10px; }
+  .ns-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--mid);
+    padding: 6px 0;
+    border-bottom: 1px solid #E8E8F4;
+  }
+  .ns-item:last-child { border-bottom: none; }
+  .ns-item .ns-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* ── disclaimer ── */
+  .disclaimer {
+    font-size: 10px; color: var(--silver); font-style: italic;
+    margin-top: 8px; line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🤲</div>
+    <span>MotionMind</span>
+  </div>
+  <div class="nav-back" onclick="prevStep()">← Back</div>
+</nav>
+
+<!-- ── PROGRESS BAR ── -->
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:20%"></div>
+</div>
+
+<!-- ── STEP INDICATOR ── -->
+<div class="step-indicator" id="stepIndicator">
+  <div class="step-dot active" id="sd1" onclick="goStep(1)">1</div>
+  <div class="step-line" id="sl1"></div>
+  <div class="step-dot" id="sd2" onclick="goStep(2)">2</div>
+  <div class="step-line" id="sl2"></div>
+  <div class="step-dot" id="sd3" onclick="goStep(3)">3</div>
+  <div class="step-line" id="sl3"></div>
+  <div class="step-dot" id="sd4" onclick="goStep(4)">4</div>
+  <div class="step-line" id="sl4"></div>
+  <div class="step-dot" id="sd5" onclick="goStep(5)">5</div>
+</div>
+<div class="step-labels">
+  <div class="step-lbl active" id="sl_1">Welcome</div>
+  <div class="step-spacer"></div>
+  <div class="step-lbl" id="sl_2">Child Profile</div>
+  <div class="step-spacer"></div>
+  <div class="step-lbl" id="sl_3">Pair Band</div>
+  <div class="step-spacer"></div>
+  <div class="step-lbl" id="sl_4">Calibrate</div>
+  <div class="step-spacer"></div>
+  <div class="step-lbl" id="sl_5">All Set!</div>
+</div>
+
+<!-- ── CARD ── -->
+<div class="card-wrap">
+<div class="onboard-card">
+
+  <!-- ══════════════════════════
+       STEP 1 — WELCOME
+  ══════════════════════════ -->
+  <div class="step-panel active" id="panel1">
+    <div class="step-header">
+      <span class="step-tag" style="background:#EAF7F4;color:var(--green);">Step 1 of 5</span>
+      <h2>Welcome to MotionMind 🤲</h2>
+      <p>Let's get your child's wearable band set up in under 5 minutes. No clinical expertise needed.</p>
+    </div>
+    <div class="step-body">
+      <div class="welcome-hero">
+        <div class="band-illustration">
+          ⌚
+          <div class="band-pulse"></div>
+        </div>
+        <div>
+          <h3>MotionMind Band</h3>
+          <p>A child-sized wrist band with grip sensor, surface EMG, and motion tracking — designed to work with any tablet your child already uses.</p>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-item">
+          <span class="feature-icon">✋</span>
+          <div>
+            <h4>Grip Strength</h4>
+            <p>Measures real handgrip force — the #1 predictor of fine motor readiness.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">💪</span>
+          <div>
+            <h4>Muscle Activity</h4>
+            <p>Surface EMG detects wrist flexor & extensor engagement during play.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">📷</span>
+          <div>
+            <h4>Hand Tracking</h4>
+            <p>Camera reads 21 hand skeleton points (Google MediaPipe) — no extra hardware.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🧠</span>
+          <div>
+            <h4>AI Prescription</h4>
+            <p>Scores 7 developmental domains and generates a personalized activity plan.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="disclaimer">MotionMind is a general wellness product. It does not diagnose medical conditions. All gap profiles are illustrative pending OT field validation (Q3 2026). COPPA 2025 compliant · FDA General Wellness (Jan 2026).</p>
+    </div>
+    <div class="step-footer">
+      <span style="font-size:12px;color:var(--mid);">Takes about 5 minutes</span>
+      <button class="btn-primary" onclick="nextStep()">Get Started →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       STEP 2 — CHILD PROFILE
+  ══════════════════════════ -->
+  <div class="step-panel" id="panel2">
+    <div class="step-header">
+      <span class="step-tag" style="background:#FFF3E0;color:var(--orange);">Step 2 of 5</span>
+      <h2>Create your child's profile</h2>
+      <p>This helps MotionMind personalize activity prescriptions to the right developmental stage.</p>
+    </div>
+    <div class="step-body">
+      <div class="form-row">
+        <label class="form-label">Child's first name</label>
+        <input class="form-input" type="text" placeholder="e.g. Lena" id="childName" value="Lena"/>
+      </div>
+      <div class="age-row">
+        <div class="form-row">
+          <label class="form-label">Age</label>
+          <input class="form-input" type="number" min="2" max="12" placeholder="6" id="childAge" value="6"/>
+          <p class="form-hint">Ages 2–12 supported</p>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Grade (optional)</label>
+          <select class="form-input" id="childGrade">
+            <option>Kindergarten</option>
+            <option>1st Grade</option>
+            <option>2nd Grade</option>
+            <option>3rd Grade</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Pick an avatar</label>
+        <div class="avatar-picker">
+          <div class="avatar-opt chosen" onclick="pickAvatar(this)">👧</div>
+          <div class="avatar-opt" onclick="pickAvatar(this)">👦</div>
+          <div class="avatar-opt" onclick="pickAvatar(this)">🧒</div>
+          <div class="avatar-opt" onclick="pickAvatar(this)">🌟</div>
+          <div class="avatar-opt" onclick="pickAvatar(this)">🦋</div>
+          <div class="avatar-opt" onclick="pickAvatar(this)">🐙</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Any known areas of concern? (optional)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+          <label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox" checked/> Fine motor
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox" checked/> Grip strength
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox"/> Gross motor
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox"/> Attention / focus
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox"/> Vestibular / balance
+          </label>
+        </div>
+        <p class="form-hint" style="margin-top:8px;">These help prioritize the gap profile — not a diagnosis.</p>
+      </div>
+    </div>
+    <div class="step-footer">
+      <button class="btn-ghost" onclick="prevStep()">← Back</button>
+      <button class="btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       STEP 3 — PAIR BAND
+  ══════════════════════════ -->
+  <div class="step-panel" id="panel3">
+    <div class="step-header">
+      <span class="step-tag" style="background:#EAF7F4;color:var(--teal);">Step 3 of 5</span>
+      <h2>Pair the MotionMind Band</h2>
+      <p>Put the band on <span id="pairChildName">Lena</span>'s wrist and hold the button for 3 seconds to activate Bluetooth pairing.</p>
+    </div>
+    <div class="step-body">
+      <div class="pairing-stage">
+        <div class="band-ring-wrap">
+          <div class="band-ring"></div>
+          <div class="band-ring"></div>
+          <div class="band-ring"></div>
+          <div class="band-center">⌚</div>
+        </div>
+        <div class="pairing-status" id="pairingStatus">Searching for band…</div>
+        <div class="pairing-sub" id="pairingSub">Make sure Bluetooth is on and the band LED is blinking blue</div>
+        <div class="bt-scan" id="btScan">
+          <div class="bt-dot"></div> Scanning for MotionMind Band…
+        </div>
+      </div>
+
+      <div class="pairing-steps-list">
+        <div class="ps-row">
+          <div class="ps-num done" id="ps1">✓</div>
+          <div class="ps-text done">Band powered on</div>
+        </div>
+        <div class="ps-row">
+          <div class="ps-num active" id="ps2">2</div>
+          <div class="ps-text active" id="psT2">Bluetooth scanning…</div>
+        </div>
+        <div class="ps-row">
+          <div class="ps-num" id="ps3">3</div>
+          <div class="ps-text" id="psT3">Connecting to device</div>
+        </div>
+        <div class="ps-row">
+          <div class="ps-num" id="ps4">4</div>
+          <div class="ps-text" id="psT4">Verifying sensors</div>
+        </div>
+      </div>
+    </div>
+    <div class="step-footer">
+      <button class="btn-ghost" onclick="prevStep()">← Back</button>
+      <button class="btn-primary" id="pairBtn" onclick="simulatePairing()">Simulate Pairing ▶</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       STEP 4 — CALIBRATION
+  ══════════════════════════ -->
+  <div class="step-panel" id="panel4">
+    <div class="step-header">
+      <span class="step-tag" style="background:#F3EEFF;color:#7040C0;">Step 4 of 5</span>
+      <h2>Baseline calibration 🎯</h2>
+      <p>Help <span id="calibChildName">Lena</span> do these 4 quick movements so MotionMind can set her personal baseline. Takes 2 minutes.</p>
+    </div>
+    <div class="step-body">
+      <div class="calib-wrap">
+        <div class="calib-task done" id="ct1" onclick="doCalib(1)">
+          <span class="calib-emoji">✊</span>
+          <div class="calib-title">Squeeze & Hold</div>
+          <div class="calib-sub">3 seconds max grip</div>
+          <div class="calib-check">✓</div>
+        </div>
+        <div class="calib-task active" id="ct2" onclick="doCalib(2)">
+          <span class="calib-emoji">🖐</span>
+          <div class="calib-title">Open Palm Spread</div>
+          <div class="calib-sub">Fingers wide open</div>
+          <div class="calib-check">✓</div>
+        </div>
+        <div class="calib-task" id="ct3" onclick="doCalib(3)">
+          <span class="calib-emoji">🤏</span>
+          <div class="calib-title">Pinch & Release</div>
+          <div class="calib-sub">Thumb + index x5</div>
+          <div class="calib-check">✓</div>
+        </div>
+        <div class="calib-task" id="ct4" onclick="doCalib(4)">
+          <span class="calib-emoji">👋</span>
+          <div class="calib-title">Wrist Wave</div>
+          <div class="calib-sub">Slow side to side</div>
+          <div class="calib-check">✓</div>
+        </div>
+      </div>
+
+      <div class="calib-bar-wrap">
+        <div class="calib-bar-label">
+          <span>Calibration progress</span>
+          <small id="calibPct">25% complete</small>
+        </div>
+        <div class="calib-track">
+          <div class="calib-fill" id="calibFill" style="width:25%"></div>
+        </div>
+      </div>
+
+      <div style="background:#F0FAF6;border:1px solid rgba(0,115,92,0.2);border-radius:10px;padding:14px 16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">💡 Tip for parents</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.5;">
+          Make it a game! Say <em>"Let's show the band how strong you are!"</em><br>
+          The calibration sets Lena's personal baseline — not a clinical score.
+        </div>
+      </div>
+      <p class="disclaimer" style="margin-top:10px;">Baseline values are stored locally on-device. Not shared without consent.</p>
+    </div>
+    <div class="step-footer">
+      <button class="btn-ghost" onclick="prevStep()">← Back</button>
+      <button class="btn-primary" id="calibBtn" onclick="nextStep()">All Done →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       STEP 5 — ALL SET
+  ══════════════════════════ -->
+  <div class="step-panel" id="panel5">
+    <div class="step-header">
+      <span class="step-tag" style="background:#E6F9EF;color:var(--green);">Setup Complete ✓</span>
+      <h2>You're all set, Maya! 🎉</h2>
+      <p>MotionMind is ready. <span id="finalChildName">Lena</span>'s first session is waiting.</p>
+    </div>
+    <div class="step-body">
+      <div class="success-hero">
+        <div class="success-icon">✅</div>
+        <h3>Band paired & calibrated.</h3>
+        <p>MotionMind will track <span id="finalChildName2">Lena</span>'s development across<br>7 domains — automatically, every session.</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="s-val">7</div>
+          <div class="s-lbl">Developmental domains tracked</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-val">0</div>
+          <div class="s-lbl">Clinical visits needed to start</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-val">~15m</div>
+          <div class="s-lbl">Per session recommended</div>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <div class="ns-title">What happens next</div>
+        <div class="ns-item">
+          <span class="ns-icon">▶</span>
+          <span>Start Session 1 — hand tracking game launches automatically</span>
+        </div>
+        <div class="ns-item">
+          <span class="ns-icon">📊</span>
+          <span>After Session 1, your dashboard shows Lena's gap profile</span>
+        </div>
+        <div class="ns-item">
+          <span class="ns-icon">🎯</span>
+          <span>Daily activity Rx is generated — all household objects, no extra cost</span>
+        </div>
+        <div class="ns-item">
+          <span class="ns-icon">🏥</span>
+          <span>If gaps persist after 4 weeks, MotionMind will suggest an OT referral</span>
+        </div>
+      </div>
+      <p class="disclaimer">MotionMind is a general wellness product and does not replace occupational therapy. If you have clinical concerns, consult a licensed OT. COPPA 2025 compliant · FDA General Wellness (Jan 2026).</p>
+    </div>
+    <div class="step-footer">
+      <span style="font-size:12px;color:var(--mid);">You can revisit setup anytime in Settings</span>
+      <button class="btn-primary" onclick="window.location.href='02_child_game.html'">▶ Start Session 1</button>
+    </div>
+  </div>
+
+</div><!-- /onboard-card -->
+</div><!-- /card-wrap -->
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 5;
+  const progressPct = [20, 40, 60, 80, 100];
+
+  function goStep(n) {
+    if (n > currentStep + 1) return; // can't skip ahead
+    document.getElementById(`panel${currentStep}`).classList.remove('active');
+    currentStep = n;
+    document.getElementById(`panel${currentStep}`).classList.add('active');
+    updateIndicator();
+    syncChildName();
+  }
+
+  function nextStep() {
+    if (currentStep < totalSteps) goStep(currentStep + 1);
+  }
+  function prevStep() {
+    if (currentStep > 1) goStep(currentStep - 1);
+  }
+
+  function updateIndicator() {
+    document.getElementById('progressFill').style.width = progressPct[currentStep - 1] + '%';
+    for (let i = 1; i <= totalSteps; i++) {
+      const dot = document.getElementById(`sd${i}`);
+      const lbl = document.getElementById(`sl_${i}`);
+      dot.classList.remove('active', 'done');
+      lbl.classList.remove('active', 'done');
+      if (i < currentStep)      { dot.classList.add('done'); dot.textContent = '✓'; lbl.classList.add('done'); }
+      else if (i === currentStep){ dot.classList.add('active'); dot.textContent = i; lbl.classList.add('active'); }
+      else                       { dot.textContent = i; }
+      // lines
+      if (i < totalSteps) {
+        const line = document.getElementById(`sl${i}`);
+        line.classList.toggle('done', i < currentStep);
+      }
+    }
+  }
+
+  function syncChildName() {
+    const name = document.getElementById('childName')?.value || 'your child';
+    ['pairChildName','calibChildName','finalChildName','finalChildName2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = name;
+    });
+  }
+
+  function pickAvatar(el) {
+    document.querySelectorAll('.avatar-opt').forEach(a => a.classList.remove('chosen'));
+    el.classList.add('chosen');
+  }
+
+  // ── Simulated Bluetooth pairing ──
+  let pairingDone = false;
+  function simulatePairing() {
+    if (pairingDone) { nextStep(); return; }
+    const btn = document.getElementById('pairBtn');
+    btn.disabled = true;
+    btn.textContent = 'Pairing…';
+
+    const steps = [
+      { delay: 1200, ps: 2, text: 'Band found: MM-Band-A3F2', status: 'Band found!', sub: 'Establishing secure connection…' },
+      { delay: 2400, ps: 3, text: 'Connecting…',               status: 'Connecting…', sub: 'Setting up encrypted channel' },
+      { delay: 3600, ps: 4, text: 'Verifying sensors…',        status: 'Verifying sensors…', sub: 'Grip · EMG · Accelerometer · Gyroscope' },
+      { delay: 4800, ps: 4, text: 'All sensors ✓',             status: '✅ Band paired successfully!', sub: 'MM-Band-A3F2 · Battery 94% · Signal strong', done: true },
+    ];
+
+    steps.forEach(({ delay, ps, text, status, sub, done }) => {
+      setTimeout(() => {
+        for (let i = 2; i <= ps; i++) {
+          document.getElementById(`ps${i}`).classList.add('done');
+          document.getElementById(`ps${i}`).textContent = '✓';
+          document.getElementById(`psT${i}`).classList.add('done');
+        }
+        document.getElementById(`psT${ps}`).textContent = text;
+        document.getElementById('pairingStatus').textContent = status;
+        document.getElementById('pairingSub').textContent = sub;
+        if (done) {
+          pairingDone = true;
+          document.getElementById('btScan').innerHTML = '✅ MotionMind Band — MM-Band-A3F2 connected';
+          document.getElementById('btScan').style.background = '#E6F9EF';
+          document.getElementById('btScan').style.color = 'var(--green)';
+          btn.disabled = false;
+          btn.textContent = 'Continue →';
+        }
+      }, delay);
+    });
+  }
+
+  // ── Calibration click ──
+  let calibDone = 1;
+  function doCalib(n) {
+    if (n > calibDone + 1) return;
+    document.getElementById(`ct${n}`).classList.add('done');
+    document.getElementById(`ct${n}`).classList.remove('active');
+    calibDone = Math.max(calibDone, n);
+    if (n < 4) document.getElementById(`ct${n+1}`).classList.add('active');
+    const pct = Math.round((calibDone / 4) * 100);
+    document.getElementById('calibFill').style.width = pct + '%';
+    document.getElementById('calibPct').textContent = pct + '% complete';
+  }
+
+  // Init
+  syncChildName();
+  document.getElementById('childName').addEventListener('input', syncChildName);
+</script>
+</body>
+</html>

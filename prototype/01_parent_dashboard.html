@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MotionMind — Parent Dashboard</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green:    #00735C;
+    --teal:     #00A88A;
+    --lime:     #6CC24A;
+    --charcoal: #1A1A2E;
+    --dark:     #2C2C3E;
+    --mid:      #4A4A6A;
+    --silver:   #D0D0E0;
+    --offwhite: #F5F5F7;
+    --white:    #FFFFFF;
+    --orange:   #E86A1A;
+    --gold:     #F0A500;
+    --font:     'Segoe UI', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--font);
+    background: var(--offwhite);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ── Top Nav ── */
+  nav {
+    background: var(--charcoal);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo {
+    width: 32px; height: 32px;
+    background: var(--green);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .nav-brand span {
+    color: var(--white);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .nav-brand small {
+    color: var(--teal);
+    font-size: 11px;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .nav-right .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--green));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 13px; font-weight: 700;
+    cursor: pointer;
+  }
+  .nav-right .notif {
+    position: relative;
+    cursor: pointer;
+    color: var(--silver);
+    font-size: 20px;
+  }
+  .notif-dot {
+    position: absolute;
+    top: -2px; right: -2px;
+    width: 8px; height: 8px;
+    background: var(--lime);
+    border-radius: 50%;
+    border: 2px solid var(--charcoal);
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    background: var(--white);
+    border-right: 1px solid #E8E8F0;
+    padding: 24px 0;
+  }
+  .sidebar-section {
+    margin-bottom: 8px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--silver);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0 20px 6px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    color: var(--mid);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar-item:hover { background: var(--offwhite); color: var(--charcoal); }
+  .sidebar-item.active {
+    background: #EAF7F4;
+    color: var(--green);
+    border-left-color: var(--green);
+    font-weight: 600;
+  }
+  .sidebar-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* Child switcher */
+  .child-card {
+    margin: 0 16px 20px;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    border-radius: 12px;
+    padding: 14px;
+    color: white;
+  }
+  .child-card .child-name { font-size: 15px; font-weight: 700; }
+  .child-card .child-age  { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+  .child-card .child-streak {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── Main ── */
+  main {
+    padding: 28px 32px;
+    overflow-y: auto;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--charcoal);
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--mid);
+    margin-top: 3px;
+  }
+  .btn {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--teal); }
+
+  /* ── Stat row ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid #EBEBF5;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card.green::before  { background: var(--green); }
+  .stat-card.teal::before   { background: var(--teal); }
+  .stat-card.orange::before { background: var(--orange); }
+  .stat-card.lime::before   { background: var(--lime); }
+  .stat-label  { font-size: 11px; color: var(--mid); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value  { font-size: 32px; font-weight: 800; margin: 6px 0 2px; line-height: 1; }
+  .stat-value.green  { color: var(--green); }
+  .stat-value.teal   { color: var(--teal); }
+  .stat-value.orange { color: var(--orange); }
+  .stat-value.lime   { color: var(--lime); }
+  .stat-sub    { font-size: 11.5px; color: var(--mid); }
+  .stat-badge  {
+    position: absolute; top: 16px; right: 14px;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 7px; border-radius: 20px;
+  }
+  .badge-up   { background: #E6F9EF; color: var(--green); }
+  .badge-warn { background: #FFF3E0; color: var(--orange); }
+
+  /* ── Two-col grid ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid #EBEBF5;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #F0F0F8;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-header h2 {
+    font-size: 14px; font-weight: 700; color: var(--charcoal);
+  }
+  .card-header span {
+    font-size: 11px; color: var(--mid); cursor: pointer;
+  }
+  .card-header span:hover { color: var(--green); }
+  .card-body { padding: 16px 20px; }
+
+  /* ── Gap profile bars ── */
+  .gap-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .gap-name { font-size: 12px; color: var(--mid); width: 120px; flex-shrink: 0; }
+  .gap-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #EEEEF8;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .gap-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s ease;
+  }
+  .gap-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    width: 82px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .status-on  { background: #E6F9EF; color: var(--green); }
+  .status-off { background: #FFF3E0; color: var(--orange); }
+  .gap-note   { font-size: 10px; color: var(--silver); margin-top: -8px; margin-bottom: 6px; padding-left: 130px; font-style: italic; }
+
+  /* ── Activity prescription ── */
+  .rx-card {
+    border: 1px solid #EBEBF5;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .rx-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .rx-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .rx-title   { font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .rx-sub     { font-size: 11px; color: var(--mid); margin-top: 2px; }
+  .rx-tag     { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 5px; }
+  .tag-grip   { background: #E6F9EF; color: var(--green); }
+  .tag-fine   { background: #E0F4FF; color: #0080B0; }
+  .tag-vestib { background: #F3EEFF; color: #7040C0; }
+  .rx-duration { margin-left: auto; font-size: 11px; color: var(--mid); flex-shrink: 0; text-align: right; padding-top: 2px; }
+
+  /* ── Progress chart (CSS-only sparkline) ── */
+  .spark-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 48px;
+    padding: 0 4px;
+  }
+  .spark-bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    background: var(--teal);
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .spark-bar.active { opacity: 1; background: var(--green); }
+  .spark-labels {
+    display: flex;
+    gap: 5px;
+    padding: 4px 4px 0;
+    font-size: 9px;
+    color: var(--silver);
+  }
+  .spark-labels span { flex: 1; text-align: center; }
+
+  /* ── Session log ── */
+  .session-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F5FA;
+  }
+  .session-row:last-child { border-bottom: none; }
+  .session-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .session-info { flex: 1; }
+  .session-title { font-size: 12.5px; font-weight: 600; color: var(--charcoal); }
+  .session-meta  { font-size: 11px; color: var(--mid); margin-top: 1px; }
+  .session-score { font-size: 13px; font-weight: 700; }
+
+  /* ── Wearable status ── */
+  .wearable-card {
+    background: var(--charcoal);
+    border-radius: 12px;
+    padding: 18px 20px;
+    color: white;
+    margin-bottom: 20px;
+  }
+  .wearable-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .wearable-header h2 { font-size: 14px; font-weight: 700; }
+  .wearable-live {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--lime);
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--lime);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+  .wearable-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .w-metric {
+    background: rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .w-metric-label { font-size: 10px; color: var(--silver); text-transform: uppercase; letter-spacing: 0.5px; }
+  .w-metric-value { font-size: 22px; font-weight: 800; margin-top: 4px; }
+  .w-metric-unit  { font-size: 10px; color: var(--silver); }
+
+  /* ── Disclaimer ── */
+  .disclaimer {
+    font-size: 10px;
+    color: var(--silver);
+    font-style: italic;
+    margin-top: 6px;
+    padding: 0 4px;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #CCCCE0; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🤲</div>
+    <span>MotionMind <small>Beta</small></span>
+  </div>
+  <div class="nav-right">
+    <div class="notif">🔔<span class="notif-dot"></span></div>
+    <div class="avatar">M</div>
+  </div>
+</nav>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="child-card">
+      <div class="child-name">👧 Lena</div>
+      <div class="child-age">Age 6 · Week 4</div>
+      <div class="child-streak">🔥 7-day streak</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active"><span class="icon">📊</span> Dashboard</div>
+      <div class="sidebar-item"><span class="icon">🧠</span> Gap Profile</div>
+      <div class="sidebar-item"><span class="icon">📅</span> Sessions</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Tools</div>
+      <div class="sidebar-item"><span class="icon">🎯</span> Activity Rx</div>
+      <div class="sidebar-item"><span class="icon">📈</span> Progress</div>
+      <div class="sidebar-item"><span class="icon">⌚</span> Wearable</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Support</div>
+      <div class="sidebar-item"><span class="icon">🏥</span> OT Referral</div>
+      <div class="sidebar-item"><span class="icon">⚙️</span> Settings</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1>Good morning, Maya 👋</h1>
+        <p>Lena completed her session yesterday · Tuesday, April 1, 2026</p>
+      </div>
+      <button class="btn">▶ Start Today's Session</button>
+    </div>
+
+    <!-- Stat row -->
+    <div class="stat-row">
+      <div class="stat-card green">
+        <div class="stat-label">Sessions Completed</div>
+        <div class="stat-value green">11</div>
+        <div class="stat-sub">This month</div>
+        <span class="stat-badge badge-up">↑ On track</span>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-label">Gaps Improving</div>
+        <div class="stat-value teal">4 / 6</div>
+        <div class="stat-sub">Tracked domains</div>
+        <span class="stat-badge badge-up">↑ Progress</span>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-label">Needs Focus</div>
+        <div class="stat-value orange">2</div>
+        <div class="stat-sub">Grip · Muscle quality</div>
+        <span class="stat-badge badge-warn">Action needed</span>
+      </div>
+      <div class="stat-card lime">
+        <div class="stat-label">Engagement Score</div>
+        <div class="stat-value lime">87%</div>
+        <div class="stat-sub">Session completion rate</div>
+        <span class="stat-badge badge-up">↑ High</span>
+      </div>
+    </div>
+
+    <!-- Wearable band live status -->
+    <div class="wearable-card">
+      <div class="wearable-header">
+        <h2>⌚ MotionMind Band — Last Session (Yesterday 4:12 PM)</h2>
+        <div class="wearable-live"><div class="live-dot"></div> Synced</div>
+      </div>
+      <div class="wearable-metrics">
+        <div class="w-metric">
+          <div class="w-metric-label">Peak Grip Force</div>
+          <div class="w-metric-value" style="color:var(--lime)">3.2 <span class="w-metric-unit">kgf</span></div>
+          <div class="w-metric-unit">↑ Trending up vs. Week 1</div>
+        </div>
+        <div class="w-metric">
+          <div class="w-metric-label">Muscle Activation</div>
+          <div class="w-metric-value" style="color:var(--teal)">42 <span class="w-metric-unit">%MVC</span></div>
+          <div class="w-metric-unit">Wrist flexors — moderate</div>
+        </div>
+        <div class="w-metric">
+          <div class="w-metric-label">Session Duration</div>
+          <div class="w-metric-value" style="color:var(--gold)">18 <span class="w-metric-unit">min</span></div>
+          <div class="w-metric-unit">Target: 15 min ✓</div>
+        </div>
+      </div>
+      <p class="disclaimer" style="color:#607870; margin-top:10px;">⚠ Wearable metrics are illustrative — pending OT-validated calibration protocols (Target: Q3 2026 pilot)</p>
+    </div>
+
+    <!-- Gap profile + Activity Rx -->
+    <div class="three-col">
+
+      <!-- Gap profile -->
+      <div class="card">
+        <div class="card-header">
+          <h2>🧠 Developmental Gap Profile</h2>
+          <span>View full report →</span>
+        </div>
+        <div class="card-body">
+          <p class="disclaimer" style="margin-bottom:12px;">Status labels are illustrative — pending OT field validation (Q3 2026)</p>
+
+          <div class="gap-row">
+            <div class="gap-name">Fine Motor</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:75%;background:var(--green)"></div></div>
+            <div class="gap-status status-on">On Track</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-name">Handgrip Strength</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:42%;background:var(--orange)"></div></div>
+            <div class="gap-status status-off">Needs Focus</div>
+          </div>
+          <div class="gap-note">→ Key target area — activity Rx assigned below</div>
+          <div class="gap-row">
+            <div class="gap-name">Muscle Quality</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:38%;background:var(--orange)"></div></div>
+            <div class="gap-status status-off">Needs Focus</div>
+          </div>
+          <div class="gap-note">→ Wrist extensor weakness detected via band EMG</div>
+          <div class="gap-row">
+            <div class="gap-name">Gross Motor</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:88%;background:var(--green)"></div></div>
+            <div class="gap-status status-on">On Track</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-name">Visual-Motor</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:80%;background:var(--teal)"></div></div>
+            <div class="gap-status status-on">On Track</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-name">Vestibular</div>
+            <div class="gap-bar-track"><div class="gap-bar-fill" style="width:68%;background:var(--teal)"></div></div>
+            <div class="gap-status status-on">On Track</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rx + Session log -->
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <!-- Activity Rx -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🎯 Today's Activity Rx</h2>
+            <span>All activities →</span>
+          </div>
+          <div class="card-body">
+            <div class="rx-card">
+              <div class="rx-icon" style="background:#E6F9EF;">🪄</div>
+              <div>
+                <div class="rx-title">Playdough Squeeze</div>
+                <div class="rx-sub">Targets grip + finger opposition</div>
+                <span class="rx-tag tag-grip">Grip</span>
+              </div>
+              <div class="rx-duration">10 min<br><span style="color:var(--green);font-size:10px;">✓ OT-designed</span></div>
+            </div>
+            <div class="rx-card">
+              <div class="rx-icon" style="background:#E0F4FF;">🧱</div>
+              <div>
+                <div class="rx-title">Lego Brick Sorting</div>
+                <div class="rx-sub">Fine motor + pinch precision</div>
+                <span class="rx-tag tag-fine">Fine Motor</span>
+              </div>
+              <div class="rx-duration">8 min<br><span style="color:var(--green);font-size:10px;">✓ OT-designed</span></div>
+            </div>
+            <div class="rx-card">
+              <div class="rx-icon" style="background:#F3EEFF;">🌀</div>
+              <div>
+                <div class="rx-title">Balance Beam Walk</div>
+                <div class="rx-sub">Vestibular + proprioception</div>
+                <span class="rx-tag tag-vestib">Vestibular</span>
+              </div>
+              <div class="rx-duration">5 min<br><span style="color:var(--green);font-size:10px;">✓ OT-designed</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent sessions -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📅 Recent Sessions</h2>
+            <span>View all →</span>
+          </div>
+          <div class="card-body" style="padding-top:8px;">
+            <div class="session-row">
+              <div class="session-dot" style="background:var(--green)"></div>
+              <div class="session-info">
+                <div class="session-title">Hand Tracking Game · Session 11</div>
+                <div class="session-meta">Yesterday · 18 min</div>
+              </div>
+              <div class="session-score" style="color:var(--green)">✓</div>
+            </div>
+            <div class="session-row">
+              <div class="session-dot" style="background:var(--teal)"></div>
+              <div class="session-info">
+                <div class="session-title">Playdough + Finger Obstacle · Session 10</div>
+                <div class="session-meta">2 days ago · 15 min</div>
+              </div>
+              <div class="session-score" style="color:var(--teal)">✓</div>
+            </div>
+            <div class="session-row">
+              <div class="session-dot" style="background:var(--orange)"></div>
+              <div class="session-info">
+                <div class="session-title">Session 9 · Incomplete</div>
+                <div class="session-meta">3 days ago · 7 min</div>
+              </div>
+              <div class="session-score" style="color:var(--orange)">⚠</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Weekly progress sparkline -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <h2>📈 Weekly Engagement</h2>
+        <span>Last 8 weeks</span>
+      </div>
+      <div class="card-body">
+        <div class="spark-row">
+          <div class="spark-bar" style="height:40%"></div>
+          <div class="spark-bar" style="height:55%"></div>
+          <div class="spark-bar" style="height:50%"></div>
+          <div class="spark-bar" style="height:65%"></div>
+          <div class="spark-bar" style="height:70%"></div>
+          <div class="spark-bar" style="height:75%"></div>
+          <div class="spark-bar" style="height:85%"></div>
+          <div class="spark-bar active" style="height:100%"></div>
+        </div>
+        <div class="spark-labels">
+          <span>W1</span><span>W2</span><span>W3</span><span>W4</span>
+          <span>W5</span><span>W6</span><span>W7</span><span>W8 ←</span>
+        </div>
+        <p class="disclaimer">Session counts are for persona narrative illustration. Pilot data collection begins Q3 2026.</p>
+      </div>
+    </div>
+
+    <!-- OT referral nudge -->
+    <div style="background:linear-gradient(135deg,#00735C,#00A88A);border-radius:12px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="color:white;font-size:14px;font-weight:700;">🏥 Consider an OT Consultation</div>
+        <div style="color:rgba(255,255,255,0.8);font-size:12px;margin-top:3px;">Lena's grip and muscle quality have been in the "Needs Focus" zone for 3 weeks. A one-time OT assessment could help.</div>
+      </div>
+      <button style="background:white;color:var(--green);border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;margin-left:20px;">Find OT Near Me →</button>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

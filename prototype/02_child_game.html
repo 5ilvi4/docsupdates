@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MotionMind — Lena's Game</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green:    #00735C;
+    --teal:     #00A88A;
+    --lime:     #6CC24A;
+    --charcoal: #1A1A2E;
+    --dark:     #0D1F17;
+    --mid:      #4A4A6A;
+    --silver:   #D0D0E0;
+    --white:    #FFFFFF;
+    --orange:   #E86A1A;
+    --gold:     #F0A500;
+    --purple:   #7B5EA7;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(108,194,74,0.2);
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .game-logo {
+    background: var(--green);
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .game-title { font-size: 15px; font-weight: 700; color: var(--white); }
+  .game-subtitle { font-size: 11px; color: var(--teal); }
+
+  /* stars */
+  .stars { display: flex; gap: 3px; }
+  .star { font-size: 20px; filter: grayscale(1); transition: filter 0.3s; }
+  .star.earned { filter: none; animation: popIn 0.4s ease; }
+  @keyframes popIn {
+    0% { transform: scale(0); } 70% { transform: scale(1.3); } 100% { transform: scale(1); }
+  }
+
+  /* XP bar */
+  .xp-wrap { display: flex; align-items: center; gap: 8px; }
+  .xp-label { font-size: 11px; color: var(--teal); font-weight: 700; }
+  .xp-track {
+    width: 120px; height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px; overflow: hidden;
+  }
+  .xp-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--lime), var(--teal));
+    width: 0%;
+    transition: width 0.6s ease;
+  }
+
+  /* ── MAIN GAME AREA ── */
+  .game-area {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    overflow: hidden;
+  }
+
+  /* ── CAMERA / HAND TRACKING CANVAS ── */
+  .camera-panel {
+    position: relative;
+    background: radial-gradient(ellipse at center, #0A2A1F 0%, #050F0A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Animated grid lines — feel of tech/tracking */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,168,138,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,168,138,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Corner scan brackets */
+  .corner { position: absolute; width: 28px; height: 28px; }
+  .corner.tl { top: 20px; left: 20px; border-top: 2px solid var(--teal); border-left: 2px solid var(--teal); }
+  .corner.tr { top: 20px; right: 20px; border-top: 2px solid var(--teal); border-right: 2px solid var(--teal); }
+  .corner.bl { bottom: 20px; left: 20px; border-bottom: 2px solid var(--teal); border-left: 2px solid var(--teal); }
+  .corner.br { bottom: 20px; right: 20px; border-bottom: 2px solid var(--teal); border-right: 2px solid var(--teal); }
+
+  /* Hand skeleton SVG stage */
+  .hand-stage {
+    position: relative;
+    width: 320px;
+    height: 420px;
+  }
+  svg.hand-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  /* 21-point MediaPipe hand skeleton */
+  .landmark { fill: var(--lime); r: 5; }
+  .landmark.wrist { fill: var(--gold); r: 7; }
+  .landmark.fingertip { fill: var(--teal); r: 6; }
+  .bone { stroke: rgba(108,194,74,0.6); stroke-width: 2; fill: none; }
+  .bone.thumb { stroke: rgba(240,165,0,0.7); }
+
+  /* Floating target bubbles */
+  .target-bubble {
+    position: absolute;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    animation: floatBubble 3s ease-in-out infinite;
+    transition: transform 0.1s;
+    box-shadow: 0 0 20px rgba(108,194,74,0.4);
+  }
+  .target-bubble:hover { transform: scale(1.15); }
+  @keyframes floatBubble {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-12px); }
+  }
+  .bubble-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(108,194,74,0.3);
+    animation: ringPulse 2s ease-out infinite;
+  }
+  @keyframes ringPulse {
+    0%   { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  /* Ripple effect on catch */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(108,194,74,0.3);
+    animation: rippleOut 0.5s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes rippleOut {
+    0%   { transform: scale(0); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+
+  /* Scan line */
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    animation: scanMove 3s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scanMove {
+    0%   { top: 0%; opacity: 0.8; }
+    100% { top: 100%; opacity: 0.2; }
+  }
+
+  /* HUD overlay labels */
+  .hud-label {
+    position: absolute;
+    font-size: 10px;
+    color: var(--teal);
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+
+  /* Landmark count badge */
+  .landmark-badge {
+    position: absolute;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,168,138,0.15);
+    border: 1px solid rgba(0,168,138,0.3);
+    border-radius: 99px;
+    padding: 4px 14px;
+    font-size: 11px;
+    color: var(--teal);
+    font-family: monospace;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    background: rgba(10,20,15,0.95);
+    border-left: 1px solid rgba(0,168,138,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .panel-section {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .panel-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  /* Live metrics */
+  .live-metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .live-metric:last-child { margin-bottom: 0; }
+  .lm-label { font-size: 11px; color: var(--silver); }
+  .lm-value { font-size: 16px; font-weight: 800; }
+  .lm-bar-track {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    margin-top: 3px;
+    overflow: hidden;
+  }
+  .lm-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s ease;
+  }
+
+  /* Task list */
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 12px;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .task-done { color: var(--lime); }
+  .task-active { color: var(--white); font-weight: 600; }
+  .task-todo { color: rgba(255,255,255,0.3); }
+
+  /* Encouragement banner */
+  .encourage {
+    background: linear-gradient(135deg, rgba(108,194,74,0.15), rgba(0,168,138,0.1));
+    border: 1px solid rgba(108,194,74,0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .encourage .emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+  .encourage .msg   { font-size: 13px; font-weight: 700; color: var(--lime); }
+  .encourage .sub   { font-size: 11px; color: var(--silver); margin-top: 2px; }
+
+  /* Timer ring */
+  .timer-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .timer-ring {
+    position: relative;
+    width: 72px; height: 72px;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+  .timer-ring .track { stroke: rgba(255,255,255,0.08); }
+  .timer-ring .prog  { stroke: var(--lime); stroke-dasharray: 188; stroke-dashoffset: 47; transition: stroke-dashoffset 1s; }
+  .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; color: var(--lime);
+  }
+  .timer-label { font-size: 10px; color: var(--silver); text-align: center; }
+
+  /* Wearable mini */
+  .band-indicator {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--silver);
+  }
+  .band-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* Pause btn */
+  .pause-btn {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: var(--silver);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .pause-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+  /* Score pop animation */
+  .score-pop {
+    position: absolute;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--lime);
+    pointer-events: none;
+    animation: scoreFly 1.2s ease-out forwards;
+    text-shadow: 0 0 10px rgba(108,194,74,0.8);
+  }
+  @keyframes scoreFly {
+    0%   { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-80px) scale(1.4); opacity: 0; }
+  }
+
+  /* Instruction banner at bottom of camera */
+  .instruction-bar {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(0,168,138,0.3);
+    border-radius: 99px;
+    padding: 6px 18px;
+    font-size: 12px;
+    color: var(--silver);
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+  }
+  .instruction-bar b { color: var(--lime); }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="game-logo">🤲</div>
+    <div>
+      <div class="game-title">MotionMind Play</div>
+      <div class="game-subtitle">Hand Tracking · Session 12</div>
+    </div>
+  </div>
+
+  <div class="stars" id="stars">
+    <span class="star earned" title="Speed bonus">⭐</span>
+    <span class="star earned" title="Accuracy">⭐</span>
+    <span class="star" title="Perfect round">⭐</span>
+  </div>
+
+  <div class="xp-wrap">
+    <span class="xp-label">XP</span>
+    <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:62%"></div></div>
+    <span style="font-size:11px;color:var(--silver)">620 / 1000</span>
+  </div>
+</div>
+
+<!-- ── GAME AREA ── -->
+<div class="game-area">
+
+  <!-- ── CAMERA / HAND TRACKING PANEL ── -->
+  <div class="camera-panel" id="cameraPanel">
+    <div class="grid-overlay"></div>
+    <div class="scan-line"></div>
+
+    <!-- Corner brackets -->
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- HUD labels -->
+    <div class="hud-label" style="top:14px;left:50%;transform:translateX(-50%)">
+      MediaPipe Hands · 21-point skeleton · &lt;10ms latency
+    </div>
+    <div class="hud-label" style="top:14px;right:52px">FPS: 30</div>
+
+    <!-- Hand skeleton stage -->
+    <div class="hand-stage" id="handStage">
+      <svg class="hand-svg" id="handSvg" viewBox="0 0 320 420">
+
+        <!-- BONES (connections between landmarks) -->
+        <!-- Thumb -->
+        <line class="bone thumb" id="b_t01" x1="120" y1="340" x2="100" y2="300"/>
+        <line class="bone thumb" id="b_t12" x1="100" y1="300" x2="85"  y2="265"/>
+        <line class="bone thumb" id="b_t23" x1="85"  y1="265" x2="72"  y2="235"/>
+        <line class="bone thumb" id="b_t34" x1="72"  y1="235" x2="58"  y2="205"/>
+        <!-- Index -->
+        <line class="bone" id="b_i01" x1="120" y1="340" x2="140" y2="280"/>
+        <line class="bone" id="b_i12" x1="140" y1="280" x2="148" y2="230"/>
+        <line class="bone" id="b_i23" x1="148" y1="230" x2="152" y2="185"/>
+        <line class="bone" id="b_i34" x1="152" y1="185" x2="155" y2="148"/>
+        <!-- Middle -->
+        <line class="bone" id="b_m01" x1="120" y1="340" x2="162" y2="278"/>
+        <line class="bone" id="b_m12" x1="162" y1="278" x2="172" y2="225"/>
+        <line class="bone" id="b_m23" x1="172" y1="225" x2="176" y2="178"/>
+        <line class="bone" id="b_m34" x1="176" y1="178" x2="179" y2="140"/>
+        <!-- Ring -->
+        <line class="bone" id="b_r01" x1="120" y1="340" x2="185" y2="282"/>
+        <line class="bone" id="b_r12" x1="185" y1="282" x2="196" y2="230"/>
+        <line class="bone" id="b_r23" x1="196" y1="230" x2="200" y2="186"/>
+        <line class="bone" id="b_r34" x1="200" y1="186" x2="203" y2="152"/>
+        <!-- Pinky -->
+        <line class="bone" id="b_p01" x1="120" y1="340" x2="208" y2="292"/>
+        <line class="bone" id="b_p12" x1="208" y1="292" x2="218" y2="248"/>
+        <line class="bone" id="b_p23" x1="218" y1="248" x2="222" y2="216"/>
+        <line class="bone" id="b_p34" x1="222" y1="216" x2="225" y2="188"/>
+        <!-- Palm -->
+        <line class="bone" id="b_palm1" x1="120" y1="340" x2="140" y2="280"/>
+        <line class="bone" id="b_palm2" x1="140" y1="280" x2="162" y2="278"/>
+        <line class="bone" id="b_palm3" x1="162" y1="278" x2="185" y2="282"/>
+        <line class="bone" id="b_palm4" x1="185" y1="282" x2="208" y2="292"/>
+
+        <!-- LANDMARKS (21 points) -->
+        <!-- Wrist = 0 -->
+        <circle class="landmark wrist" id="lm0"  cx="120" cy="340" r="7"/>
+        <!-- Thumb -->
+        <circle class="landmark" id="lm1"  cx="100" cy="300" r="5"/>
+        <circle class="landmark" id="lm2"  cx="85"  cy="265" r="5"/>
+        <circle class="landmark" id="lm3"  cx="72"  cy="235" r="5"/>
+        <circle class="landmark fingertip" id="lm4"  cx="58"  cy="205" r="6"/>
+        <!-- Index -->
+        <circle class="landmark" id="lm5"  cx="140" cy="280" r="5"/>
+        <circle class="landmark" id="lm6"  cx="148" cy="230" r="5"/>
+        <circle class="landmark" id="lm7"  cx="152" cy="185" r="5"/>
+        <circle class="landmark fingertip" id="lm8"  cx="155" cy="148" r="6"/>
+        <!-- Middle -->
+        <circle class="landmark" id="lm9"  cx="162" cy="278" r="5"/>
+        <circle class="landmark" id="lm10" cx="172" cy="225" r="5"/>
+        <circle class="landmark" id="lm11" cx="176" cy="178" r="5"/>
+        <circle class="landmark fingertip" id="lm12" cx="179" cy="140" r="6"/>
+        <!-- Ring -->
+        <circle class="landmark" id="lm13" cx="185" cy="282" r="5"/>
+        <circle class="landmark" id="lm14" cx="196" cy="230" r="5"/>
+        <circle class="landmark" id="lm15" cx="200" cy="186" r="5"/>
+        <circle class="landmark fingertip" id="lm16" cx="203" cy="152" r="6"/>
+        <!-- Pinky -->
+        <circle class="landmark" id="lm17" cx="208" cy="292" r="5"/>
+        <circle class="landmark" id="lm18" cx="218" cy="248" r="5"/>
+        <circle class="landmark" id="lm19" cx="222" cy="216" r="5"/>
+        <circle class="landmark fingertip" id="lm20" cx="225" cy="188" r="6"/>
+      </svg>
+
+      <!-- Target bubbles (absolute inside hand-stage) -->
+      <div class="target-bubble" id="bubble1"
+           style="width:60px;height:60px;background:radial-gradient(circle,rgba(108,194,74,0.3),rgba(0,115,92,0.6));border:2px solid var(--lime);top:80px;left:20px;"
+           onclick="catchBubble(this,1)">
+        🌟
+        <div class="bubble-ring" style="width:60px;height:60px;top:0;left:0;"></div>
+      </div>
+      <div class="target-bubble" id="bubble2"
+           style="width:52px;height:52px;background:radial-gradient(circle,rgba(0,168,138,0.3),rgba(0,80,60,0.6));border:2px solid var(--teal);top:160px;right:30px;animation-delay:1s;"
+           onclick="catchBubble(this,2)">
+        🎯
+        <div class="bubble-ring" style="width:52px;height:52px;top:0;left:0;"></div>
+      </div>
+      <div class="target-bubble" id="bubble3"
+           style="width:48px;height:48px;background:radial-gradient(circle,rgba(240,165,0,0.3),rgba(100,60,0,0.6));border:2px solid var(--gold);top:50px;right:60px;animation-delay:2s;"
+           onclick="catchBubble(this,3)">
+        ⭐
+        <div class="bubble-ring" style="width:48px;height:48px;top:0;left:0;"></div>
+      </div>
+    </div>
+
+    <!-- Instruction bar -->
+    <div class="instruction-bar">
+      <b>Move your hand</b> to guide the skeleton · <b>Pinch</b> to catch bubbles
+    </div>
+
+    <!-- Landmark count -->
+    <div class="landmark-badge">
+      🤲 21 landmarks detected · Confidence: 0.94 · Grip quality: <span style="color:var(--lime)">Moderate</span>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <!-- Timer -->
+    <div class="panel-section" style="display:flex;align-items:center;gap:16px;">
+      <div class="timer-wrap">
+        <div class="timer-ring">
+          <svg viewBox="0 0 72 72" width="72" height="72">
+            <circle class="track" cx="36" cy="36" r="30"/>
+            <circle class="prog" id="timerProg" cx="36" cy="36" r="30"/>
+          </svg>
+          <div class="timer-text" id="timerText">8:24</div>
+        </div>
+        <div class="timer-label">Time Left</div>
+      </div>
+      <div style="flex:1;">
+        <div class="panel-title" style="margin-bottom:4px;">Session 12</div>
+        <div style="font-size:13px;font-weight:700;color:var(--white);">Bubble Catch</div>
+        <div style="font-size:11px;color:var(--silver);margin-top:2px;">Targets: grip + fine motor precision</div>
+        <div class="band-indicator" style="margin-top:8px;">
+          <div class="band-dot"></div>
+          Band connected · Logging grip
+        </div>
+      </div>
+    </div>
+
+    <!-- Live metrics -->
+    <div class="panel-section">
+      <div class="panel-title">Live Wearable Metrics</div>
+      <div style="margin-bottom:10px;">
+        <div class="live-metric">
+          <span class="lm-label">Grip Force</span>
+          <span class="lm-value" style="color:var(--lime)" id="gripVal">2.8 kgf</span>
+        </div>
+        <div class="lm-bar-track"><div class="lm-bar-fill" id="gripBar" style="width:56%;background:var(--lime)"></div></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="live-metric">
+          <span class="lm-label">Muscle Activation</span>
+          <span class="lm-value" style="color:var(--teal)" id="muscleVal">38 %MVC</span>
+        </div>
+        <div class="lm-bar-track"><div class="lm-bar-fill" id="muscleBar" style="width:38%;background:var(--teal)"></div></div>
+      </div>
+      <div>
+        <div class="live-metric">
+          <span class="lm-label">Wrist Stability</span>
+          <span class="lm-value" style="color:var(--gold)" id="stabilVal">Good</span>
+        </div>
+        <div class="lm-bar-track"><div class="lm-bar-fill" id="stabilBar" style="width:72%;background:var(--gold)"></div></div>
+      </div>
+      <p style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:8px;font-style:italic;">Metrics illustrative — pending pilot calibration Q3 2026</p>
+    </div>
+
+    <!-- Score -->
+    <div class="panel-section" style="text-align:center;">
+      <div class="panel-title">Score</div>
+      <div style="font-size:48px;font-weight:900;color:var(--lime);line-height:1;" id="scoreDisplay">340</div>
+      <div style="font-size:11px;color:var(--silver);margin-top:4px;">Bubbles caught: <b id="caughtCount" style="color:var(--white)">7</b></div>
+    </div>
+
+    <!-- Task checklist -->
+    <div class="panel-section">
+      <div class="panel-title">Round Tasks</div>
+      <div class="task-item task-done">✅ <span>Open palm hold (3 sec)</span></div>
+      <div class="task-item task-done">✅ <span>Pinch 5 bubbles</span></div>
+      <div class="task-item task-active">▶ <span>Catch 3 star bubbles</span></div>
+      <div class="task-item task-todo">⬜ <span>Full hand squeeze × 10</span></div>
+      <div class="task-item task-todo">⬜ <span>Finger spread hold (5 sec)</span></div>
+    </div>
+
+    <!-- Encouragement -->
+    <div class="encourage" id="encourageBox">
+      <span class="emoji">🎉</span>
+      <div class="msg">Great pinch, Lena!</div>
+      <div class="sub">Your grip is getting stronger 💪</div>
+    </div>
+
+    <!-- Pause -->
+    <button class="pause-btn" onclick="togglePause()">⏸ Pause Session</button>
+
+  </div>
+</div>
+
+<script>
+  // ── Animate hand skeleton (idle sway) ──
+  const landmarks = [];
+  for (let i = 0; i <= 20; i++) {
+    const el = document.getElementById(`lm${i}`);
+    if (el) landmarks.push({
+      el,
+      ox: parseFloat(el.getAttribute('cx')),
+      oy: parseFloat(el.getAttribute('cy')),
+      phase: Math.random() * Math.PI * 2,
+      amp: i === 0 ? 1 : (i < 5 ? 4 : 6)
+    });
+  }
+
+  // Bone endpoints map  [fromLm, toLm, boneId]
+  const boneMap = [
+    [0,1,'b_t01'],[1,2,'b_t12'],[2,3,'b_t23'],[3,4,'b_t34'],
+    [0,5,'b_i01'],[5,6,'b_i12'],[6,7,'b_i23'],[7,8,'b_i34'],
+    [0,9,'b_m01'],[9,10,'b_m12'],[10,11,'b_m23'],[11,12,'b_m34'],
+    [0,13,'b_r01'],[13,14,'b_r12'],[14,15,'b_r23'],[15,16,'b_r34'],
+    [0,17,'b_p01'],[17,18,'b_p12'],[18,19,'b_p23'],[19,20,'b_p34'],
+    [5,9,'b_palm1'],[9,13,'b_palm2'],[13,17,'b_palm3'],
+  ];
+
+  let t = 0;
+  function animateSkeleton() {
+    t += 0.02;
+    landmarks.forEach(lm => {
+      const nx = lm.ox + Math.sin(t + lm.phase) * lm.amp;
+      const ny = lm.oy + Math.cos(t * 0.7 + lm.phase) * (lm.amp * 0.6);
+      lm.el.setAttribute('cx', nx);
+      lm.el.setAttribute('cy', ny);
+    });
+    // Update bone lines
+    boneMap.forEach(([a, b, id]) => {
+      const line = document.getElementById(id);
+      if (!line || !landmarks[a] || !landmarks[b]) return;
+      line.setAttribute('x1', landmarks[a].el.getAttribute('cx'));
+      line.setAttribute('y1', landmarks[a].el.getAttribute('cy'));
+      line.setAttribute('x2', landmarks[b].el.getAttribute('cx'));
+      line.setAttribute('y2', landmarks[b].el.getAttribute('cy'));
+    });
+    requestAnimationFrame(animateSkeleton);
+  }
+  animateSkeleton();
+
+  // ── Timer countdown ──
+  let seconds = 504; // 8:24
+  const timerText = document.getElementById('timerText');
+  const timerProg = document.getElementById('timerProg');
+  const totalSeconds = 600; // 10 min session
+  const circumference = 188;
+  let paused = false;
+
+  function updateTimer() {
+    if (paused) return;
+    if (seconds > 0) seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timerText.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    const offset = circumference * (1 - seconds / totalSeconds);
+    timerProg.style.strokeDashoffset = circumference - (circumference * seconds / totalSeconds);
+  }
+  setInterval(updateTimer, 1000);
+
+  // ── Live metric shimmer ──
+  const gripVals   = [2.4, 2.6, 2.8, 3.0, 3.1, 2.9, 2.7, 3.2, 2.8];
+  const muscleVals = [32, 35, 38, 40, 37, 41, 38, 43, 39];
+  let mIdx = 0;
+  setInterval(() => {
+    mIdx = (mIdx + 1) % gripVals.length;
+    const g = gripVals[mIdx];
+    const m = muscleVals[mIdx];
+    document.getElementById('gripVal').textContent    = g.toFixed(1) + ' kgf';
+    document.getElementById('gripBar').style.width    = (g / 5 * 100) + '%';
+    document.getElementById('muscleVal').textContent  = m + ' %MVC';
+    document.getElementById('muscleBar').style.width  = m + '%';
+  }, 1800);
+
+  // ── Bubble catch ──
+  let score = 340;
+  let caught = 7;
+  const msgs = [
+    ['🎉', 'Amazing catch, Lena!', 'Keep squeezing! 💪'],
+    ['🌟', 'Perfect pinch!', 'Your fingers are so strong!'],
+    ['🔥', 'On fire!', 'That was super fast! ⚡'],
+  ];
+  let msgIdx = 0;
+
+  function catchBubble(el, id) {
+    // Score pop
+    const pop = document.createElement('div');
+    pop.className = 'score-pop';
+    pop.textContent = '+50';
+    pop.style.left = el.style.left || el.style.right || '40%';
+    pop.style.top  = el.style.top  || '30%';
+    document.getElementById('cameraPanel').appendChild(pop);
+    setTimeout(() => pop.remove(), 1200);
+
+    // Update score
+    score += 50;
+    caught++;
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('caughtCount').textContent  = caught;
+
+    // XP
+    const xp = Math.min(100, parseInt(document.getElementById('xpFill').style.width) + 4);
+    document.getElementById('xpFill').style.width = xp + '%';
+
+    // Encouragement
+    const m = msgs[msgIdx % msgs.length]; msgIdx++;
+    document.getElementById('encourageBox').innerHTML =
+      `<span class="emoji">${m[0]}</span><div class="msg">${m[1]}</div><div class="sub">${m[2]}</div>`;
+
+    // Reposition bubble
+    const positions = [
+      {top:'30px',left:'30px'},{top:'120px',right:'20px'},
+      {top:'60px',left:'50%'},{top:'200px',left:'10px'},
+      {top:'10px',right:'40px'}
+    ];
+    const pos = positions[Math.floor(Math.random() * positions.length)];
+    el.style.top    = pos.top    || '';
+    el.style.bottom = pos.bottom || '';
+    el.style.left   = pos.left   || '';
+    el.style.right  = pos.right  || '';
+
+    // Star unlock
+    if (caught >= 10) {
+      const stars = document.querySelectorAll('.star');
+      stars.forEach(s => s.classList.add('earned'));
+    }
+  }
+
+  function togglePause() {
+    paused = !paused;
+    const btn = document.querySelector('.pause-btn');
+    btn.textContent = paused ? '▶ Resume Session' : '⏸ Pause Session';
+  }
+</script>
+</body>
+</html>

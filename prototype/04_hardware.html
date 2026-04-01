@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MotionMind — Hardware</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g0:#00735C;--g1:#00A88A;--g2:#6CC24A;
+  --c0:#1A1A2E;--c1:#2A2A44;--c2:#4A4A6A;
+  --bg:#F2F0EC;--wall:#EAE6E0;--floor:#D8D0C4;
+  --desk:#C8A470;--deskd:#A07840;
+  --white:#FFFFFF;--offwhite:#F5F5F7;
+  --orange:#E86A1A;--gold:#F0A500;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--c0);min-height:100vh}
+nav{background:var(--c0);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:32px;height:32px;background:var(--g0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand span{color:#fff;font-size:16px;font-weight:800}
+.tabs{display:flex;gap:4px}
+.tab{color:rgba(255,255,255,0.55);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .15s;border:none;background:none;font-family:inherit}
+.tab:hover{background:rgba(255,255,255,0.08);color:#fff}
+.tab.on{background:var(--g0);color:#fff;font-weight:700}
+.nav-back{color:rgba(255,255,255,0.5);font-size:12px;text-decoration:none;padding:6px 12px;border-radius:6px}
+.nav-back:hover{color:#fff;background:rgba(255,255,255,0.08)}
+.page{display:none}.page.on{display:block}
+.strip{background:linear-gradient(135deg,var(--c0),#192E22);padding:28px 52px;color:#fff;text-align:center}
+.strip .tag{display:inline-block;background:rgba(108,194,74,.15);border:1px solid rgba(108,194,74,.3);color:var(--g2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 12px;border-radius:99px;margin-bottom:10px}
+.strip h1{font-size:26px;font-weight:900}
+.strip p{font-size:13px;color:rgba(255,255,255,.55);margin-top:6px}
+.scene-body{display:flex;gap:28px;padding:28px 44px;align-items:flex-start}
+.scene-box{flex:1;background:#fff;border-radius:20px;border:1px solid #E8E8F4;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,.07)}
+.room{position:relative;width:100%;height:420px;overflow:hidden;background:#EDE8E2}
+.room-floor{position:absolute;bottom:0;left:0;right:0;height:42%;background:linear-gradient(180deg,#D8D2C8,#CCC6BA)}
+.room-wall{position:absolute;top:0;left:0;right:0;bottom:42%;background:linear-gradient(180deg,#EDEAE5,#E4E0DA)}
+.room-baseboard{position:absolute;bottom:42%;left:0;right:0;height:6px;background:#C8C2B8}
+.sidebar{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border-radius:14px;border:1px solid #EBEBF5;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card-head{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F5F5FA}
+.card-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-head h3{font-size:13px;font-weight:800;color:var(--c0)}
+.card-head p{font-size:10.5px;color:var(--c2);margin-top:1px}
+.card-body{padding:10px 16px}
+.spec-row{display:flex;justify-content:space-between;align-items:center;padding:5.5px 0;border-bottom:1px solid #F8F8FC;font-size:11.5px}
+.spec-row:last-child{border:none}
+.sk{color:var(--c2)}.sv{font-weight:700;color:var(--c0);text-align:right}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;margin-left:5px}
+.bg{background:#E6F9EF;color:var(--g0)}.bb{background:#E0F0FF;color:#0070B0}.bo{background:#FFF3E0;color:var(--orange)}
+.flow-strip{padding:14px 28px;background:#FAFAFA;border-top:1px solid #EBEBF5;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flow-chip{background:rgba(0,115,92,.08);border:1px solid rgba(0,115,92,.15);color:var(--g0);padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+/* system page */
+.sys-page{padding:36px 52px}
+.sys-page h2{font-size:20px;font-weight:900;margin-bottom:4px}
+.sys-page .sub{font-size:13px;color:var(--c2);margin-bottom:28px}
+.sys-wrap{background:#fff;border-radius:18px;border:1px solid #EBEBF5;padding:40px 32px;box-shadow:0 4px 24px rgba(0,0,0,.05)}
+.sys-flow{display:flex;align-items:center;justify-content:center;gap:0}
+.sys-node{display:flex;flex-direction:column;align-items:center;gap:10px;width:110px;cursor:pointer;transition:transform .2s}
+.sys-node:hover{transform:translateY(-4px)}
+.node-icon{width:68px;height:68px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 4px 18px rgba(0,0,0,.1)}
+.node-label{font-size:12px;font-weight:800;text-align:center;color:var(--c0)}
+.node-sub{font-size:10px;color:var(--c2);text-align:center;margin-top:-6px}
+.sys-arrow{display:flex;flex-direction:column;align-items:center;gap:5px;width:58px;flex-shrink:0;padding-bottom:32px}
+.arrow-track{width:48px;height:3px;background:linear-gradient(90deg,var(--g1),var(--g2));border-radius:99px;position:relative}
+.arrow-track::after{content:'';position:absolute;right:-5px;top:-5px;width:10px;height:10px;background:var(--g2);clip-path:polygon(0 0,100% 50%,0 100%)}
+.arrow-tag{font-size:9px;color:var(--c2);text-align:center;white-space:nowrap}
+.sys-optional{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:24px;padding-top:20px;border-top:1px dashed #E0E0EC}
+.opt-node{background:#F5F5F7;border:1.5px solid #E0E0EC;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;color:var(--c2);display:flex;align-items:center;gap:6px}
+.opt-dash{width:60px;height:2px;background:repeating-linear-gradient(90deg,#C0C0D0 0,#C0C0D0 5px,transparent 5px,transparent 10px)}
+.sig-table-wrap{margin-top:28px;background:#fff;border-radius:14px;border:1px solid #EBEBF5;overflow:hidden}
+.sig-table-head{padding:14px 20px;font-size:14px;font-weight:800;border-bottom:1px solid #F0F0F8}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--c0);color:#fff}
+thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+tbody tr{border-bottom:1px solid #F5F5FA;transition:background .15s}
+tbody tr:hover{background:#FAFAFA}
+tbody tr:last-child{border:none}
+tbody td{padding:9px 16px;color:var(--c0)}
+tbody td:first-child{font-weight:700}
+.bom-page{padding:36px 52px}
+.bom-page h2{font-size:20px;font-weight:900;margin-bottom:4px}
+.bom-page .sub{font-size:13px;color:var(--c2);margin-bottom:24px}
+.bom-table-wrap{background:#fff;border-radius:16px;border:1px solid #EBEBF5;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.05)}
+tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
+.disc{font-size:10px;color:#AAA;font-style:italic;padding:16px 0 0;line-height:1.6}
+/* ── CALLOUT PINS ── */
+.callout-overlay{position:absolute;inset:0;pointer-events:none}
+.cpin{position:absolute;pointer-events:all;cursor:pointer;display:flex;align-items:center;gap:0;z-index:20}
+.pdot{width:13px;height:13px;border-radius:50%;border:2.5px solid #fff;flex-shrink:0;transition:transform .2s;animation:pglow 2.4s ease-in-out infinite}
+@keyframes pglow{0%,100%{box-shadow:0 0 0 3px rgba(0,115,92,.3)}50%{box-shadow:0 0 0 8px rgba(0,115,92,0)}}
+.cpin:hover .pdot{transform:scale(1.3)}
+.pline{height:2px;flex-shrink:0}
+.plabel{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.plabel .sub{font-size:9.5px;font-weight:400;opacity:.7;display:block;margin-top:1px}
+/* animations */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes btwave{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+@keyframes steam{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-6px);opacity:.1}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand">
+    <div class="brand-logo">🤲</div>
+    <span>MotionMind</span>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="gotoPage('scene',this)">📐 Hardware Scene</button>
+    <button class="tab" onclick="gotoPage('system',this)">🔗 System Diagram</button>
+    <button class="tab" onclick="gotoPage('bom',this)">📋 Bill of Materials</button>
+  </div>
+  <a class="nav-back" href="01_parent_dashboard.html">← Dashboard</a>
+</nav>
+
+<!-- PAGE 1 – SCENE -->
+<div id="page-scene" class="page on">
+  <div class="strip">
+    <div class="tag">Hardware Prototype · April 2026</div>
+    <h1>The MotionMind System</h1>
+    <p>One band · iPad on dock · USB-C dongle → any monitor. No keyboard. No new screen.</p>
+  </div>
+
+  <div class="scene-body">
+    <div class="scene-box">
+      <!-- ROOM — Gemini illustration -->
+      <div class="room">
+        <!-- Gemini-generated scene image -->
+        <img src="hardware_scene.png" alt="MotionMind hardware scene" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center"/>
+
+        <!-- SVG overlay: animated pulse dots anchored to image landmarks -->
+        <svg width="100%" height="100%" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;pointer-events:none">
+          <defs>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+            </filter>
+          </defs>
+
+          <!-- ── BT WAVES anchored to child's wrist (left side of image ~20%,65%) ── -->
+          <circle cx="160" cy="273" r="12" fill="none" stroke="#00A88A" stroke-width="2" opacity="0.6">
+            <animate attributeName="r" values="10;28" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;0" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="160" cy="273" r="12" fill="none" stroke="#00A88A" stroke-width="1.5" opacity="0.4">
+            <animate attributeName="r" values="10;28" dur="2s" repeatCount="indefinite" begin="0.6s"/>
+            <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite" begin="0.6s"/>
+          </circle>
+
+          <!-- ── CALLOUT DOTS (anchored to image features) ── -->
+          <!-- Monitor (top-right of image ~78%,15%) -->
+          <circle cx="624" cy="63" r="8" fill="#00735C" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+          <circle cx="624" cy="63" r="8" fill="none" stroke="#00735C" stroke-width="2">
+            <animate attributeName="r" values="9;20" dur="2.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- iPad on dock (~57%,55%) -->
+          <circle cx="456" cy="231" r="7" fill="#6080C0" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+          <circle cx="456" cy="231" r="7" fill="none" stroke="#6080C0" stroke-width="1.5">
+            <animate attributeName="r" values="8;18" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+            <animate attributeName="opacity" values="0.6;0" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+          </circle>
+
+          <!-- Dongle (~60%,45%) -->
+          <circle cx="480" cy="189" r="7" fill="#F0A500" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+          <circle cx="480" cy="189" r="7" fill="none" stroke="#F0A500" stroke-width="1.5">
+            <animate attributeName="r" values="8;18" dur="2.4s" repeatCount="indefinite" begin="0.8s"/>
+            <animate attributeName="opacity" values="0.6;0" dur="2.4s" repeatCount="indefinite" begin="0.8s"/>
+          </circle>
+
+          <!-- Band on wrist (~20%,65%) -->
+          <circle cx="160" cy="273" r="8" fill="#00A88A" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+
+          <!-- Child (~22%,45%) -->
+          <circle cx="176" cy="189" r="7" fill="#6CC24A" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+          <circle cx="176" cy="189" r="7" fill="none" stroke="#6CC24A" stroke-width="1.5">
+            <animate attributeName="r" values="8;18" dur="2s" repeatCount="indefinite" begin="1s"/>
+            <animate attributeName="opacity" values="0.6;0" dur="2s" repeatCount="indefinite" begin="1s"/>
+          </circle>
+        </svg>
+
+        <!-- HTML CALLOUT LABELS -->
+        <div class="callout-overlay" style="pointer-events:none">
+
+          <!-- Monitor label — top right (monitor is upper-right in Gemini image) -->
+          <div style="position:absolute;top:5%;right:2%;pointer-events:all">
+            <div style="background:var(--c0);color:#fff;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.35)">
+              🖥 Wall Monitor <span style="font-size:9.5px;font-weight:400;opacity:.7">— mirrored via dongle</span>
+            </div>
+          </div>
+
+          <!-- iPad label — center-right on desk -->
+          <div style="position:absolute;top:50%;right:2%;pointer-events:all">
+            <div style="background:#1A1A40;color:#A0C0FF;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
+              � iPad on dock <span style="font-size:9.5px;font-weight:400;opacity:.7">— charging while playing</span>
+            </div>
+          </div>
+
+          <!-- Dongle label — right, between iPad and monitor -->
+          <div style="position:absolute;top:37%;right:2%;pointer-events:all">
+            <div style="background:#2A1E00;color:#F0C060;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
+              � USB-C Dongle <span style="font-size:9.5px;font-weight:400;opacity:.7">— HDMI + PD</span>
+            </div>
+          </div>
+
+          <!-- Child label — left side, mid -->
+          <div style="position:absolute;top:38%;left:1%;pointer-events:all">
+            <div style="background:#1A2A10;color:#A0E080;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
+              👧 Lena, age 6 <span style="font-size:9.5px;font-weight:400;opacity:.7">— hand tracked via front cam</span>
+            </div>
+          </div>
+
+          <!-- Band label — left side, lower (wrist level) -->
+          <div style="position:absolute;bottom:12%;left:1%;pointer-events:all">
+            <div style="background:#003A30;color:#80EED0;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
+              ⌚ MotionMind Band <span style="font-size:9.5px;font-weight:400;opacity:.7">— Grip · EMG · IMU · BLE 5.2</span>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /room -->
+
+      <!-- SIGNAL FLOW STRIP -->
+      <div class="flow-strip">
+        <span style="font-size:11px;font-weight:700;color:var(--c2)">SIGNAL FLOW:</span>
+        <span style="font-size:11px">⌚ Band</span>
+        <span class="flow-chip">BLE 5.2</span>
+        <span style="color:var(--g1)">→</span>
+        <span style="font-size:11px">📱 iPad App</span>
+        <span style="color:var(--g1)">→</span>
+        <span style="font-size:11px">🤲 MediaPipe</span>
+        <span class="flow-chip">21-pt skeleton</span>
+        <span style="color:var(--g1)">→</span>
+        <span style="font-size:11px">🤖 AI Gap Score</span>
+        <span style="color:var(--g1)">→</span>
+        <span style="font-size:11px">🖥 Monitor</span>
+        <span class="flow-chip">optional</span>
+        <span style="color:var(--g1)">→</span>
+        <span style="font-size:11px">☁️ Parent Dashboard</span>
+      </div>
+    </div><!-- /scene-box -->
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
+          <div><h3>MotionMind Band</h3><p>Child wrist wearable · v1 concept</p></div>
+        </div>
+        <div class="card-body">
+          <div class="spec-row"><span class="sk">Grip sensor</span><span class="sv">FSR 402</span></div>
+          <div class="spec-row"><span class="sk">Muscle (EMG)</span><span class="sv">Surface EMG × 2</span></div>
+          <div class="spec-row"><span class="sk">Motion</span><span class="sv">3-axis IMU</span></div>
+          <div class="spec-row"><span class="sk">Wireless</span><span class="sv">BLE 5.2 <span class="badge bb">BLE</span></span></div>
+          <div class="spec-row"><span class="sk">Battery</span><span class="sv">~8 hrs · 120 mAh</span></div>
+          <div class="spec-row"><span class="sk">Charge</span><span class="sv">USB-C magnetic dock</span></div>
+          <div class="spec-row"><span class="sk">Strap</span><span class="sv">XS/S · ages 3–10</span></div>
+          <div class="spec-row"><span class="sk">Target BOM</span><span class="sv" style="color:var(--g0)">~$18 <span class="badge bo">est.</span></span></div>
+          <div class="spec-row"><span class="sk">Retail price</span><span class="sv" style="color:var(--g0);font-size:14px">$49</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:#EEF0F8">📱</div>
+          <div><h3>iPad + Charging Dock</h3><p>Any iPad · iOS 16+</p></div>
+        </div>
+        <div class="card-body">
+          <div class="spec-row"><span class="sk">Camera</span><span class="sv">Front cam (hand track)</span></div>
+          <div class="spec-row"><span class="sk">App</span><span class="sv">MotionMind iOS</span></div>
+          <div class="spec-row"><span class="sk">Dock</span><span class="sv">USB-C charging stand</span></div>
+          <div class="spec-row"><span class="sk">Min iOS</span><span class="sv">iOS 16+ <span class="badge bg">COPPA ✓</span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:#FFF8E8">🔌</div>
+          <div><h3>USB-C Dongle</h3><p>Optional · OT clinic / classroom</p></div>
+        </div>
+        <div class="card-body">
+          <div class="spec-row"><span class="sk">Ports</span><span class="sv">HDMI + USB-C PD</span></div>
+          <div class="spec-row"><span class="sk">Resolution</span><span class="sv">Up to 4K @ 60Hz</span></div>
+          <div class="spec-row"><span class="sk">Est. cost</span><span class="sv">~$25 off-shelf</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="disc" style="padding:0 44px 24px">
+    Hardware specs are conceptual estimates for v1 prototype (April 2026). BOM costs are indicative and pending supplier quotes. Sensor data requires OT-validated calibration before clinical use. General wellness device · COPPA 2025 compliant · FDA General Wellness Guidance Jan 6, 2026.
+  </p>
+</div>
+
+<!-- PAGE 2 – SYSTEM DIAGRAM -->
+<div id="page-system" class="page sys-page">
+  <h2>System Architecture</h2>
+  <p class="sub">How the band, tablet, and AI layer communicate</p>
+  <div class="sys-wrap">
+    <div class="sys-flow">
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
+        <div class="node-label">Wearable Band</div>
+        <div class="node-sub">Grip · EMG · IMU</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">BLE 5.2</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:var(--c0)">📱</div>
+        <div class="node-label">iPad App</div>
+        <div class="node-sub">MotionMind iOS</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Front Camera</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#0D3A28,#1A5C40)">🤲</div>
+        <div class="node-label">MediaPipe</div>
+        <div class="node-sub">21-pt skeleton &lt;10ms</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Sensor fusion</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#2A1A4A,#4A2A7A)">🤖</div>
+        <div class="node-label">AI Engine</div>
+        <div class="node-sub">Gap scoring · Rx</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">WiFi / Cloud</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#1A3A5C,#2A5A8C)">📊</div>
+        <div class="node-label">Parent Dashboard</div>
+        <div class="node-sub">Report · Activity Rx</div>
+      </div>
+    </div>
+    <div class="sys-optional">
+      <span style="font-size:11px;color:var(--c2);font-weight:700">Optional output:</span>
+      <div class="opt-dash"></div>
+      <span style="font-size:11px;color:var(--c2)">iPad</span>
+      <div class="opt-dash" style="width:40px"></div>
+      <div class="opt-node">🔌 USB-C Dongle</div>
+      <div class="opt-dash" style="width:40px"></div>
+      <div class="opt-node">🖥 Monitor (OT / classroom)</div>
+    </div>
+  </div>
+  <div class="sig-table-wrap">
+    <div class="sig-table-head">What each sensor captures</div>
+    <table>
+      <thead><tr><th>Sensor</th><th>Signal</th><th>Developmental domain</th><th>Layer</th></tr></thead>
+      <tbody>
+        <tr><td>⌚ FSR grip sensor</td><td>Peak + sustained grip force (kgf)</td><td>Handgrip strength</td><td><span class="badge bb">Band</span></td></tr>
+        <tr><td>⌚ Surface EMG × 2</td><td>Wrist flexor/extensor (%MVC)</td><td>Muscle quality</td><td><span class="badge bb">Band</span></td></tr>
+        <tr><td>⌚ IMU (accel + gyro)</td><td>Wrist speed, stability, tremor</td><td>Fine motor · vestibular</td><td><span class="badge bb">Band</span></td></tr>
+        <tr><td>📷 Front camera</td><td>21 hand landmarks (MediaPipe)</td><td>Fine motor precision</td><td><span class="badge bg">Camera</span></td></tr>
+        <tr><td>📷 Front camera</td><td>Body pose landmarks</td><td>Gross motor · posture</td><td><span class="badge bg">Camera</span></td></tr>
+        <tr><td>🤖 AI fusion</td><td>Band + camera fused in real time</td><td>7 developmental gaps scored</td><td><span class="badge bo">AI</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 3 – BOM -->
+<div id="page-bom" class="page bom-page">
+  <h2>Bill of Materials — Band v1</h2>
+  <p class="sub">Conceptual BOM · April 2026 · All figures are indicative estimates</p>
+  <div class="bom-table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Component</th><th>Function</th><th>Est. Unit Cost</th><th>Qty</th><th>Est. Total</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>FSR 402 force sensor</td><td>Grip force measurement</td><td style="color:var(--g0);font-weight:700">$1.80</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.80</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>2</td><td>Surface EMG electrodes</td><td>Wrist flexor/extensor (%MVC)</td><td style="color:var(--g0);font-weight:700">$2.40</td><td>2</td><td style="color:var(--g0);font-weight:700">$4.80</td><td><span class="badge bb">Medical-grade</span></td></tr>
+        <tr><td>3</td><td>IMU · MPU-6050</td><td>Accel + gyro for wrist motion</td><td style="color:var(--g0);font-weight:700">$1.20</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.20</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>4</td><td>nRF52840 BLE SoC</td><td>BLE 5.2 + MCU</td><td style="color:var(--g0);font-weight:700">$2.90</td><td>1</td><td style="color:var(--g0);font-weight:700">$2.90</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>5</td><td>LiPo battery 120 mAh</td><td>~8 hrs runtime</td><td style="color:var(--g0);font-weight:700">$1.50</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.50</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>6</td><td>Silicone strap (XS/S)</td><td>Wrist mount · skin-safe</td><td style="color:var(--g0);font-weight:700">$1.80</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.80</td><td><span class="badge bo">Custom mold</span></td></tr>
+        <tr><td>7</td><td>PCB + housing</td><td>Enclosure + signal routing</td><td style="color:var(--g0);font-weight:700">$3.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$3.00</td><td><span class="badge bo">Custom</span></td></tr>
+        <tr><td>8</td><td>USB-C magnetic dock</td><td>Daily charging base</td><td style="color:var(--g0);font-weight:700">$1.20</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.20</td><td><span class="badge bg">Off-shelf</span></td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="5" style="font-weight:700">Estimated BOM Total (band only)</td><td style="color:var(--g0);font-size:17px;font-weight:900">~$18.20</td><td></td></tr>
+        <tr><td colspan="5" style="color:var(--c2)">Target retail price</td><td style="font-weight:900;font-size:16px">$49</td><td style="font-size:11px;color:var(--c2)">~2.7× margin</td></tr>
+        <tr><td colspan="5" style="color:var(--c2)">USB-C Dongle (optional)</td><td style="font-weight:700;color:var(--c2)">~$25</td><td style="font-size:11px;color:var(--c2)">Pass-through</td></tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="disc">All BOM costs are conceptual estimates for a v1 prototype build (April 2026). Actual costs will vary based on volume, supplier negotiations, and final component selection. Medical-grade EMG electrodes may require additional regulatory review. General wellness device · not submitted for FDA clearance.</p>
+</div>
+
+<script>
+function gotoPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
