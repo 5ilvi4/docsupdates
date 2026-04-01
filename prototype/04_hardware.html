@@ -32,7 +32,7 @@ nav{background:var(--c0);height:52px;display:flex;align-items:center;justify-con
 .strip p{font-size:13px;color:rgba(255,255,255,.55);margin-top:6px}
 .scene-body{display:flex;gap:28px;padding:28px 44px;align-items:flex-start}
 .scene-box{flex:1;background:#fff;border-radius:20px;border:1px solid #E8E8F4;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,.07)}
-.room{position:relative;width:100%;height:420px;overflow:hidden;background:#EDE8E2}
+.room{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#1A1A2E}
 .room-floor{position:absolute;bottom:0;left:0;right:0;height:42%;background:linear-gradient(180deg,#D8D2C8,#CCC6BA)}
 .room-wall{position:absolute;top:0;left:0;right:0;bottom:42%;background:linear-gradient(180deg,#EDEAE5,#E4E0DA)}
 .room-baseboard{position:absolute;bottom:42%;left:0;right:0;height:6px;background:#C8C2B8}
@@ -128,7 +128,7 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
       <!-- ROOM — Gemini illustration -->
       <div class="room">
         <!-- Gemini-generated scene image -->
-        <img src="hardware_scene.png" alt="MotionMind hardware scene" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center"/>
+        <img src="hardware_scene.png" alt="MotionMind hardware scene" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center"/>
 
         <!-- SVG overlay: animated pulse dots anchored to image landmarks -->
         <svg width="100%" height="100%" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;pointer-events:none">
