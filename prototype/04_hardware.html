@@ -117,13 +117,11 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
 
 <!-- PAGE 1 – SCENE -->
 <div id="page-scene" class="page on">
-  <div class="strip">
+    <div class="strip">
     <div class="tag">Hardware Prototype · April 2026</div>
     <h1>The MotionMind System</h1>
-    <p>One band · iPad on dock · USB-C dongle → any monitor. No keyboard. No new screen.</p>
-  </div>
-
-  <div class="scene-body">
+    <p>M5StickC PLUS2 band · iPad front camera · MediaPipe fusion · Band screen reports to parent</p>
+  </div>  <div class="scene-body">
     <div class="scene-box">
       <!-- ROOM — Gemini illustration -->
       <div class="room">
@@ -208,14 +206,14 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
           <!-- Child label — left side, mid -->
           <div style="position:absolute;top:38%;left:1%;pointer-events:all">
             <div style="background:#1A2A10;color:#A0E080;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
-              👧 Lena, age 6 <span style="font-size:9.5px;font-weight:400;opacity:.7">— hand tracked via front cam</span>
+              👧 Lena, age 6 <span style="font-size:9.5px;font-weight:400;opacity:.7">— hand tracked by front cam · MediaPipe</span>
             </div>
           </div>
 
           <!-- Band label — left side, lower (wrist level) -->
           <div style="position:absolute;bottom:12%;left:1%;pointer-events:all">
             <div style="background:#003A30;color:#80EED0;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.25)">
-              ⌚ MotionMind Band <span style="font-size:9.5px;font-weight:400;opacity:.7">— Grip · EMG · IMU · BLE 5.2</span>
+              ⌚ M5StickC PLUS2 <span style="font-size:9.5px;font-weight:400;opacity:.7">— MPU6886 · BLE HID · Report screen</span>
             </div>
           </div>
 
@@ -225,20 +223,26 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
       <!-- SIGNAL FLOW STRIP -->
       <div class="flow-strip">
         <span style="font-size:11px;font-weight:700;color:var(--c2)">SIGNAL FLOW:</span>
-        <span style="font-size:11px">⌚ Band</span>
-        <span class="flow-chip">BLE 5.2</span>
+        <span style="font-size:11px">⌚ Band IMU</span>
+        <span class="flow-chip">BLE HID direct</span>
         <span style="color:var(--g1)">→</span>
-        <span style="font-size:11px">📱 iPad App</span>
+        <span style="font-size:11px">🎮 iOS Game Controller</span>
         <span style="color:var(--g1)">→</span>
-        <span style="font-size:11px">🤲 MediaPipe</span>
-        <span class="flow-chip">21-pt skeleton</span>
+        <span style="font-size:11px">🎯 Any App Store Game</span>
+        <span style="margin:0 6px;color:#ccc">|</span>
+        <span style="font-size:11px">📷 Front Camera</span>
+        <span class="flow-chip">MediaPipe 21-pt</span>
         <span style="color:var(--g1)">→</span>
-        <span style="font-size:11px">🤖 AI Gap Score</span>
+        <span style="font-size:11px">📱 iPad classifies</span>
         <span style="color:var(--g1)">→</span>
-        <span style="font-size:11px">🖥 Monitor</span>
-        <span class="flow-chip">optional</span>
+        <span style="font-size:11px">⌚ Band echoes HID</span>
         <span style="color:var(--g1)">→</span>
-        <span style="font-size:11px">☁️ Parent Dashboard</span>
+        <span style="font-size:11px">🎯 Game</span>
+        <span style="margin:0 6px;color:#ccc">|</span>
+        <span style="font-size:11px">📊 Scores</span>
+        <span style="color:var(--g1)">→</span>
+        <span class="flow-chip">Band screen</span>
+        <span style="font-size:11px">Parent reads</span>
       </div>
     </div><!-- /scene-box -->
 
@@ -247,18 +251,20 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
       <div class="card">
         <div class="card-head">
           <div class="card-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
-          <div><h3>MotionMind Band</h3><p>Child wrist wearable · v1 concept</p></div>
+          <div><h3>M5StickC PLUS2</h3><p>Wrist band · v1 prototype · ESP32</p></div>
         </div>
         <div class="card-body">
-          <div class="spec-row"><span class="sk">Grip sensor</span><span class="sv">FSR 402</span></div>
-          <div class="spec-row"><span class="sk">Muscle (EMG)</span><span class="sv">Surface EMG × 2</span></div>
-          <div class="spec-row"><span class="sk">Motion</span><span class="sv">3-axis IMU</span></div>
-          <div class="spec-row"><span class="sk">Wireless</span><span class="sv">BLE 5.2 <span class="badge bb">BLE</span></span></div>
-          <div class="spec-row"><span class="sk">Battery</span><span class="sv">~8 hrs · 120 mAh</span></div>
-          <div class="spec-row"><span class="sk">Charge</span><span class="sv">USB-C magnetic dock</span></div>
-          <div class="spec-row"><span class="sk">Strap</span><span class="sv">XS/S · ages 3–10</span></div>
-          <div class="spec-row"><span class="sk">Target BOM</span><span class="sv" style="color:var(--g0)">~$18 <span class="badge bo">est.</span></span></div>
-          <div class="spec-row"><span class="sk">Retail price</span><span class="sv" style="color:var(--g0);font-size:14px">$49</span></div>
+          <div class="spec-row"><span class="sk">Chip</span><span class="sv">ESP32-PICO-V3-02 <span class="badge bb">240MHz</span></span></div>
+          <div class="spec-row"><span class="sk">IMU</span><span class="sv">MPU6886 <span class="badge bg">6-axis</span></span></div>
+          <div class="spec-row"><span class="sk">Wireless</span><span class="sv">BLE 5.0 + WiFi 2.4GHz</span></div>
+          <div class="spec-row"><span class="sk">BLE role</span><span class="sv">HID gamepad + custom GATT</span></div>
+          <div class="spec-row"><span class="sk">Screen</span><span class="sv">1.14" TFT 135×240 <span class="badge bo">report</span></span></div>
+          <div class="spec-row"><span class="sk">Battery</span><span class="sv">200mAh + power bank</span></div>
+          <div class="spec-row"><span class="sk">Charge</span><span class="sv">USB-C passthrough</span></div>
+          <div class="spec-row"><span class="sk">Size</span><span class="sv">48×24×13.5mm · 16.7g</span></div>
+          <div class="spec-row"><span class="sk">Flash / RAM</span><span class="sv">8MB / 2MB PSRAM</span></div>
+          <div class="spec-row"><span class="sk">SDK</span><span class="sv">Arduino + ESP-IDF</span></div>
+          <div class="spec-row"><span class="sk">BOM cost</span><span class="sv" style="color:var(--g0)">$32.90 <span class="badge bo">Amazon</span></span></div>
         </div>
       </div>
       <div class="card">
@@ -295,39 +301,88 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
 <!-- PAGE 2 – SYSTEM DIAGRAM -->
 <div id="page-system" class="page sys-page">
   <h2>System Architecture</h2>
-  <p class="sub">How the band, tablet, and AI layer communicate</p>
+  <p class="sub">Fusion architecture — Band HID bridge + MediaPipe fine motor + Band report screen</p>
   <div class="sys-wrap">
+
+    <!-- GROSS MOTOR PATH -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--c2);margin-bottom:10px">⚡ Gross Motor Path — ~15ms (Band → iOS direct)</div>
     <div class="sys-flow">
       <div class="sys-node">
         <div class="node-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
-        <div class="node-label">Wearable Band</div>
-        <div class="node-sub">Grip · EMG · IMU</div>
+        <div class="node-label">M5StickC PLUS2</div>
+        <div class="node-sub">MPU6886 6-axis IMU</div>
       </div>
-      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">BLE 5.2</div></div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">BLE HID direct</div></div>
       <div class="sys-node">
         <div class="node-icon" style="background:var(--c0)">📱</div>
-        <div class="node-label">iPad App</div>
-        <div class="node-sub">MotionMind iOS</div>
+        <div class="node-label">iOS System</div>
+        <div class="node-sub">Game Controller layer</div>
       </div>
-      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Front Camera</div></div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">GCController</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#2A1A4A,#4A2A7A)">🎮</div>
+        <div class="node-label">Any Game</div>
+        <div class="node-sub">App Store · no mod</div>
+      </div>
+    </div>
+
+    <!-- FINE MOTOR PATH -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--c2);margin:24px 0 10px;padding-top:20px;border-top:1px dashed #E0E0EC">👁 Fine Motor Path — ~70ms (Camera → Band → iOS)</div>
+    <div class="sys-flow">
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#0D3A28,#1A5C40)">📷</div>
+        <div class="node-label">iPad Front Cam</div>
+        <div class="node-sub">30fps live stream</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">CMSampleBuffer</div></div>
       <div class="sys-node">
         <div class="node-icon" style="background:linear-gradient(135deg,#0D3A28,#1A5C40)">🤲</div>
         <div class="node-label">MediaPipe</div>
-        <div class="node-sub">21-pt skeleton &lt;10ms</div>
+        <div class="node-sub">21-pt hand skeleton</div>
       </div>
-      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Sensor fusion</div></div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Gesture classify</div></div>
       <div class="sys-node">
-        <div class="node-icon" style="background:linear-gradient(135deg,#2A1A4A,#4A2A7A)">🤖</div>
-        <div class="node-label">AI Engine</div>
-        <div class="node-sub">Gap scoring · Rx</div>
+        <div class="node-icon" style="background:var(--c0)">📱</div>
+        <div class="node-label">MotionMind App</div>
+        <div class="node-sub">Fist · Pinch · Open</div>
       </div>
-      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">WiFi / Cloud</div></div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">BLE write (1 byte)</div></div>
       <div class="sys-node">
-        <div class="node-icon" style="background:linear-gradient(135deg,#1A3A5C,#2A5A8C)">📊</div>
-        <div class="node-label">Parent Dashboard</div>
-        <div class="node-sub">Report · Activity Rx</div>
+        <div class="node-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
+        <div class="node-label">Band echoes HID</div>
+        <div class="node-sub">Button press → iOS</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">GCController</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#2A1A4A,#4A2A7A)">🎮</div>
+        <div class="node-label">Any Game</div>
+        <div class="node-sub">App Store · no mod</div>
       </div>
     </div>
+
+    <!-- REPORT PATH -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--c2);margin:24px 0 10px;padding-top:20px;border-top:1px dashed #E0E0EC">📊 Report Path — every 30s (iPad → Band screen)</div>
+    <div class="sys-flow">
+      <div class="sys-node">
+        <div class="node-icon" style="background:var(--c0)">📱</div>
+        <div class="node-label">Session Engine</div>
+        <div class="node-sub">IMU + MediaPipe fused</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">REPORT_DATA (20B)</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,var(--g0),var(--g1))">⌚</div>
+        <div class="node-label">Band TFT Screen</div>
+        <div class="node-sub">Score · Reps · Time</div>
+      </div>
+      <div class="sys-arrow"><div class="arrow-track"></div><div class="arrow-tag">Parent reads</div></div>
+      <div class="sys-node">
+        <div class="node-icon" style="background:linear-gradient(135deg,#1A3A5C,#2A5A8C)">👨‍👩‍�</div>
+        <div class="node-label">Parent</div>
+        <div class="node-sub">No app needed</div>
+      </div>
+    </div>
+
+    <!-- OPTIONAL MONITOR -->
     <div class="sys-optional">
       <span style="font-size:11px;color:var(--c2);font-weight:700">Optional output:</span>
       <div class="opt-dash"></div>
@@ -338,17 +393,19 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
       <div class="opt-node">🖥 Monitor (OT / classroom)</div>
     </div>
   </div>
+
   <div class="sig-table-wrap">
-    <div class="sig-table-head">What each sensor captures</div>
+    <div class="sig-table-head">What each layer captures &amp; does</div>
     <table>
-      <thead><tr><th>Sensor</th><th>Signal</th><th>Developmental domain</th><th>Layer</th></tr></thead>
+      <thead><tr><th>Layer</th><th>Signal / Action</th><th>Clinical meaning</th><th>Latency</th></tr></thead>
       <tbody>
-        <tr><td>⌚ FSR grip sensor</td><td>Peak + sustained grip force (kgf)</td><td>Handgrip strength</td><td><span class="badge bb">Band</span></td></tr>
-        <tr><td>⌚ Surface EMG × 2</td><td>Wrist flexor/extensor (%MVC)</td><td>Muscle quality</td><td><span class="badge bb">Band</span></td></tr>
-        <tr><td>⌚ IMU (accel + gyro)</td><td>Wrist speed, stability, tremor</td><td>Fine motor · vestibular</td><td><span class="badge bb">Band</span></td></tr>
-        <tr><td>📷 Front camera</td><td>21 hand landmarks (MediaPipe)</td><td>Fine motor precision</td><td><span class="badge bg">Camera</span></td></tr>
-        <tr><td>📷 Front camera</td><td>Body pose landmarks</td><td>Gross motor · posture</td><td><span class="badge bg">Camera</span></td></tr>
-        <tr><td>🤖 AI fusion</td><td>Band + camera fused in real time</td><td>7 developmental gaps scored</td><td><span class="badge bo">AI</span></td></tr>
+        <tr><td>⌚ IMU accel (MPU6886)</td><td>Arm swing magnitude, range of motion</td><td>Gross motor reach, bilateral symmetry</td><td><span class="badge bg">~15ms</span></td></tr>
+        <tr><td>⌚ IMU gyro (MPU6886)</td><td>Wrist rotation rate, tremor jerk</td><td>Forearm supination — key DCD marker</td><td><span class="badge bg">~15ms</span></td></tr>
+        <tr><td>⌚ BLE HID direct</td><td>Joystick axes + buttons → iOS system</td><td>Controls any App Store game, no code</td><td><span class="badge bg">~15ms</span></td></tr>
+        <tr><td>📷 MediaPipe 21-pt</td><td>Finger extension spread, pinch distance</td><td>Fine motor precision, grip release</td><td><span class="badge bb">~70ms</span></td></tr>
+        <tr><td>📷 MediaPipe (both hands)</td><td>Bilateral hand landmark symmetry</td><td>Asymmetry = early hemiplegia signal</td><td><span class="badge bb">~70ms</span></td></tr>
+        <tr><td>� → ⌚ GESTURE_CMD</td><td>1-byte fine gesture → band echoes HID</td><td>Fine motor drives same game as gross</td><td><span class="badge bb">~70ms</span></td></tr>
+        <tr><td>📱 → ⌚ REPORT_DATA</td><td>Score + reps + time → band TFT screen</td><td>Parent reads report without any app</td><td><span class="badge bo">30s</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -356,29 +413,45 @@ tfoot td{padding:11px 16px;background:#F8F8FA;font-weight:700;font-size:13px}
 
 <!-- PAGE 3 – BOM -->
 <div id="page-bom" class="page bom-page">
-  <h2>Bill of Materials — Band v1</h2>
-  <p class="sub">Conceptual BOM · April 2026 · All figures are indicative estimates</p>
+  <h2>Bill of Materials — v1 Prototype</h2>
+  <p class="sub">Actual buy list · April 2026 · Customer testing build</p>
   <div class="bom-table-wrap">
     <table>
-      <thead><tr><th>#</th><th>Component</th><th>Function</th><th>Est. Unit Cost</th><th>Qty</th><th>Est. Total</th><th>Status</th></tr></thead>
+      <thead><tr><th>#</th><th>Component</th><th>Function</th><th>Unit Cost</th><th>Qty</th><th>Total</th><th>Status</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>FSR 402 force sensor</td><td>Grip force measurement</td><td style="color:var(--g0);font-weight:700">$1.80</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.80</td><td><span class="badge bg">Off-shelf</span></td></tr>
-        <tr><td>2</td><td>Surface EMG electrodes</td><td>Wrist flexor/extensor (%MVC)</td><td style="color:var(--g0);font-weight:700">$2.40</td><td>2</td><td style="color:var(--g0);font-weight:700">$4.80</td><td><span class="badge bb">Medical-grade</span></td></tr>
-        <tr><td>3</td><td>IMU · MPU-6050</td><td>Accel + gyro for wrist motion</td><td style="color:var(--g0);font-weight:700">$1.20</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.20</td><td><span class="badge bg">Off-shelf</span></td></tr>
-        <tr><td>4</td><td>nRF52840 BLE SoC</td><td>BLE 5.2 + MCU</td><td style="color:var(--g0);font-weight:700">$2.90</td><td>1</td><td style="color:var(--g0);font-weight:700">$2.90</td><td><span class="badge bg">Off-shelf</span></td></tr>
-        <tr><td>5</td><td>LiPo battery 120 mAh</td><td>~8 hrs runtime</td><td style="color:var(--g0);font-weight:700">$1.50</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.50</td><td><span class="badge bg">Off-shelf</span></td></tr>
-        <tr><td>6</td><td>Silicone strap (XS/S)</td><td>Wrist mount · skin-safe</td><td style="color:var(--g0);font-weight:700">$1.80</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.80</td><td><span class="badge bo">Custom mold</span></td></tr>
-        <tr><td>7</td><td>PCB + housing</td><td>Enclosure + signal routing</td><td style="color:var(--g0);font-weight:700">$3.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$3.00</td><td><span class="badge bo">Custom</span></td></tr>
-        <tr><td>8</td><td>USB-C magnetic dock</td><td>Daily charging base</td><td style="color:var(--g0);font-weight:700">$1.20</td><td>1</td><td style="color:var(--g0);font-weight:700">$1.20</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>1</td><td>M5StickC PLUS2 w/ Watch Accessories</td><td>ESP32 + MPU6886 IMU + TFT screen + strap</td><td style="color:var(--g0);font-weight:700">$32.90</td><td>1</td><td style="color:var(--g0);font-weight:700">$32.90</td><td><span class="badge bg">Amazon Prime</span></td></tr>
+        <tr><td>2</td><td>Anker 321 Power Bank 5200mAh</td><td>USB-C passthrough · unlimited session time</td><td style="color:var(--g0);font-weight:700">$17.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$17.00</td><td><span class="badge bg">Amazon Prime</span></td></tr>
+        <tr><td>3</td><td>iPad (any, iOS 16+)</td><td>MotionMind app · front camera · MediaPipe</td><td style="color:var(--c2);font-weight:700">—</td><td>1</td><td style="color:var(--c2);font-weight:700">existing</td><td><span class="badge bb">Existing device</span></td></tr>
+        <tr><td>4</td><td>USB-C Dock / Stand</td><td>Hold iPad facing child during session</td><td style="color:var(--g0);font-weight:700">$12.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$12.00</td><td><span class="badge bg">Off-shelf</span></td></tr>
+        <tr><td>5</td><td>USB-C Dongle (HDMI + PD)</td><td>Mirror iPad → wall monitor (OT clinic)</td><td style="color:var(--g0);font-weight:700">$25.00</td><td>1</td><td style="color:var(--g0);font-weight:700">$25.00</td><td><span class="badge bo">Optional</span></td></tr>
       </tbody>
       <tfoot>
-        <tr><td colspan="5" style="font-weight:700">Estimated BOM Total (band only)</td><td style="color:var(--g0);font-size:17px;font-weight:900">~$18.20</td><td></td></tr>
-        <tr><td colspan="5" style="color:var(--c2)">Target retail price</td><td style="font-weight:900;font-size:16px">$49</td><td style="font-size:11px;color:var(--c2)">~2.7× margin</td></tr>
-        <tr><td colspan="5" style="color:var(--c2)">USB-C Dongle (optional)</td><td style="font-weight:700;color:var(--c2)">~$25</td><td style="font-size:11px;color:var(--c2)">Pass-through</td></tr>
+        <tr><td colspan="5" style="font-weight:700">Core prototype total (band + power bank + dock)</td><td style="color:var(--g0);font-size:17px;font-weight:900">~$62</td><td></td></tr>
+        <tr><td colspan="5" style="color:var(--c2)">With optional wall monitor dongle</td><td style="font-weight:900;font-size:16px">~$87</td><td style="font-size:11px;color:var(--c2)">all-in</td></tr>
+        <tr><td colspan="5" style="color:var(--c2)">ASIN reference (band)</td><td style="font-weight:700;color:var(--c2);font-size:11px">B0DFK42GF6</td><td style="font-size:11px;color:var(--c2)">4.5★ / 48 reviews</td></tr>
       </tfoot>
     </table>
   </div>
-  <p class="disc">All BOM costs are conceptual estimates for a v1 prototype build (April 2026). Actual costs will vary based on volume, supplier negotiations, and final component selection. Medical-grade EMG electrodes may require additional regulatory review. General wellness device · not submitted for FDA clearance.</p>
+
+  <div class="sig-table-wrap" style="margin-top:24px">
+    <div class="sig-table-head">M5StickC PLUS2 — Key Specs (confirmed from M5Stack official docs)</div>
+    <table>
+      <thead><tr><th>Spec</th><th>Value</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td>SoC</td><td>ESP32-PICO-V3-02 · dual-core · 240MHz</td><td>Runs BLE HID + IMU + screen simultaneously</td></tr>
+        <tr><td>IMU</td><td>MPU6886 — 3-axis accel + 3-axis gyro</td><td>Full 6-axis motor assessment</td></tr>
+        <tr><td>BLE</td><td>BLE 5.0 (HID service + custom GATT)</td><td>Controls game AND sends IMU data on same link</td></tr>
+        <tr><td>Screen</td><td>1.14" TFT 135×240 ST7789v2</td><td>Parent report display without any app</td></tr>
+        <tr><td>Flash / PSRAM</td><td>8MB / 2MB</td><td>Enough for firmware + gesture classifier</td></tr>
+        <tr><td>Battery</td><td>200mAh · runs while USB-C charging</td><td>Unlimited session time with power bank</td></tr>
+        <tr><td>Size</td><td>48×24×13.5mm · 16.7g</td><td>Fits 6-year-old wrist · included strap</td></tr>
+        <tr><td>SDK</td><td>Arduino + ESP-IDF + PlatformIO</td><td>BLE HID libraries proven (NimBLE)</td></tr>
+        <tr><td>⚠️ Power-on note</td><td>Must set HOLD (G4) = HIGH in setup()</td><td>PLUS2 removed PMIC AXP192 — critical for firmware</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="disc">v1 prototype build for customer testing sessions (April 2026). M5StickC PLUS2 selected over LilyGO T-Watch S3 (no gyro, 1★ reviews) and Waveshare AMOLED Watch (battery safety warning, no Arduino board manager support). Power bank enables 2–4hr customer testing sessions. General wellness device · COPPA 2025 compliant · FDA General Wellness Guidance Jan 6, 2026.</p>
 </div>
 
 <script>
